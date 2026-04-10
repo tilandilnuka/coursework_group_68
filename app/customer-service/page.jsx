@@ -24,7 +24,7 @@ export default function CustomerService() {
     {
       question: "How long is the warranty period?",
       answer:
-        "All laptops come with manufacturer warranty ranging from 1-3 years depending on the brand. We also offer extended warranty options.",
+        "Eligible phones, tablets, and selected accessories come with manufacturer warranty ranging from 1-2 years depending on the brand. We also offer extended protection options on selected devices.",
     },
     {
       question: "Do you provide home delivery?",
@@ -34,7 +34,7 @@ export default function CustomerService() {
     {
       question: "Can I return a product if I'm not satisfied?",
       answer:
-        "Yes, we offer 14-day return policy for unopened items in original packaging. Custom configured laptops are not eligible for returns.",
+        "Yes, we offer a 14-day return policy for eligible unopened items in original packaging. Device activation status and hygiene-sensitive accessories may affect return eligibility.",
     },
     {
       question: "Do you offer installment plans?",
@@ -87,7 +87,7 @@ export default function CustomerService() {
             Customer Service
           </h1>
           <p className="text-xl text-gray-400">
-            Dedicated Support for Your Laptop Needs
+            Dedicated Support for Your Mobile Shopping Needs
           </p>
         </div>
 
@@ -129,10 +129,10 @@ export default function CustomerService() {
                     📞 +94 11 234 5678
                   </a>
                   <a
-                    href="mailto:support@laptop.lk"
+                    href="mailto:support@techstore.lk"
                     className="btn-secondary border-white text-white hover:bg-white hover:text-black"
                   >
-                    ✉️ support@laptop.lk
+                    ✉️ support@techstore.lk
                   </a>
                 </div>
               </div>
@@ -162,13 +162,13 @@ export default function CustomerService() {
                         ✉️ Email Support
                       </h3>
                       <p className="text-gray-400 mb-2">
-                        General: info@laptop.lk
+                        General: info@techstore.lk
                       </p>
                       <p className="text-gray-400 mb-2">
-                        Sales: sales@laptop.lk
+                        Sales: sales@techstore.lk
                       </p>
                       <p className="text-gray-400 mb-2">
-                        Technical: support@laptop.lk
+                        Technical: support@techstore.lk
                       </p>
                       <p className="text-orange-400 text-sm">
                         Response within 24 hours
@@ -253,7 +253,7 @@ export default function CustomerService() {
 
               <div className="text-center mt-12">
                 <p className="text-gray-400 mb-4">
-                  Didn't find what you're looking for?
+                  Did not find what you&apos;re looking for?
                 </p>
                 <button
                   onClick={() => setActiveTab("support")}
@@ -272,7 +272,7 @@ export default function CustomerService() {
                   Submit Support Ticket
                 </h2>
                 <p className="text-xl text-gray-400">
-                  We'll get back to you within 24 hours
+                  We will get back to you within 24 hours
                 </p>
               </div>
 
@@ -611,3 +611,5 @@ export default function CustomerService() {
     </div>
   );
 }
+
+

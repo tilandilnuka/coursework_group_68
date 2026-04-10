@@ -24,7 +24,7 @@ export default function Warranty() {
           </h1>
 
           <p className="text-xl text-gray-400">
-            Comprehensive Protection for Your Laptop
+            Comprehensive Protection for Your Mobile Devices
           </p>
         </div>
 
@@ -34,12 +34,12 @@ export default function Warranty() {
           </h2>
 
           <p className="text-gray-300 mb-4">
-            All laptops purchased from TechStore include manufacturer warranty
-            coverage:
+            All eligible phones, tablets, and branded accessories purchased
+            from TechStore include manufacturer warranty coverage:
           </p>
 
           <ul className="space-y-2 text-gray-300">
-            <li>✓ 1-year limited hardware warranty on all laptops</li>
+            <li>✓ 1-year limited hardware warranty on eligible devices</li>
             <li>✓ Covers manufacturing defects and hardware failures</li>
             <li>✓ Free repair or replacement of defective parts</li>
             <li>✓ Technical support during warranty period</li>
@@ -98,13 +98,13 @@ export default function Warranty() {
                 Hardware Failures
               </h3>
               <ul className="space-y-2 text-gray-400">
-                <li>• Motherboard defects</li>
-                <li>• Hard drive/SSD failures</li>
-                <li>• RAM issues</li>
+                <li>• Mainboard defects</li>
+                <li>• Battery faults</li>
+                <li>• Charging issues</li>
                 <li>• Display problems</li>
-                <li>• Keyboard and touchpad</li>
+                <li>• Speaker and microphone issues</li>
                 <li>• Ports and connectors</li>
-                <li>• Cooling system failures</li>
+                <li>• Camera module failures</li>
               </ul>
             </div>
             <div>
@@ -186,3 +186,4 @@ export default function Warranty() {
     </div>
   );
 }
+

@@ -71,7 +71,7 @@ export default function About() {
             About TechStore
           </h1>
           <p className="text-2xl text-gray-400 max-w-4xl mx-auto leading-relaxed">
-            Sri Lanka's Premier Technology Destination - Empowering Innovation
+            Sri Lanka&apos;s Premier Technology Destination - Empowering Innovation
             Since 2015
           </p>
         </div>
@@ -114,9 +114,10 @@ export default function About() {
               <p className="text-gray-300 leading-relaxed mb-4">
                 Founded in 2015 by tech enthusiast Rajesh Patel, TechStore began
                 with a simple mission: to provide Sri Lankans with access to the
-                world's best laptops and desktops at competitive prices. What
+                world&apos;s best mobile phones, tablets, and accessories at
+                competitive prices. What
                 started as a small 500 sq ft shop in Colombo Fort has grown into
-                the nation's most trusted technology retailer.
+                the nation&apos;s most trusted technology retailer.
               </p>
               <p className="text-gray-300 leading-relaxed">
                 Our journey from a single store to a nationwide network of 8
@@ -131,14 +132,14 @@ export default function About() {
                   <span className="text-3xl">🌟</span>
                 </div>
                 <h2 className="text-3xl font-thin text-orange-500">
-                  Today's Success
+                  Today&apos;s Success
                 </h2>
               </div>
               <p className="text-gray-300 leading-relaxed mb-4">
                 Today, we proudly serve over 50,000 satisfied customers across
-                Sri Lanka, offering an extensive range of laptops, desktops, and
-                accessories from leading global brands including Apple, Dell,
-                HP, ASUS, Lenovo, MSI, and many more.
+                Sri Lanka, offering an extensive range of mobile phones,
+                tablets, and accessories from leading global brands including
+                Apple, Samsung, Google, Xiaomi, JBL, Anker, and many more.
               </p>
               <p className="text-gray-300 leading-relaxed">
                 Our success is built on three pillars: genuine products,
@@ -161,9 +162,9 @@ export default function About() {
                 </div>
                 <p className="text-gray-200 leading-relaxed text-lg">
                   To democratize access to cutting-edge technology by providing
-                  authentic, high-quality computing solutions at competitive
-                  prices, backed by expert guidance and exceptional customer
-                  service.
+                  authentic, high-quality mobile devices and accessories at
+                  competitive prices, backed by expert guidance and exceptional
+                  customer service.
                 </p>
               </div>
 
@@ -175,9 +176,9 @@ export default function About() {
                   <h2 className="text-3xl font-thin text-white">Our Vision</h2>
                 </div>
                 <p className="text-gray-200 leading-relaxed text-lg">
-                  To be Sri Lanka's most trusted technology partner, empowering
+                  To be Sri Lanka&apos;s most trusted technology partner, empowering
                   individuals and businesses to achieve their digital
-                  aspirations through innovative computing solutions.
+                  aspirations through innovative mobile solutions.
                 </p>
               </div>
             </div>
@@ -232,7 +233,7 @@ export default function About() {
                 Meet Our Leadership Team
               </h2>
               <p className="text-xl text-gray-400">
-                The passionate individuals driving TechStore's success
+                The passionate individuals driving TechStore&apos;s success
               </p>
             </div>
 
@@ -267,7 +268,7 @@ export default function About() {
                 Join Our Growing Team
               </h3>
               <p className="text-xl text-white/90 mb-6">
-                We're always looking for passionate individuals to join our
+                We&apos;re always looking for passionate individuals to join our
                 mission
               </p>
               <button
@@ -287,7 +288,7 @@ export default function About() {
                 Our Journey
               </h2>
               <p className="text-xl text-gray-400">
-                Key milestones in TechStore's evolution
+                Key milestones in TechStore&apos;s evolution
               </p>
             </div>
 
@@ -333,8 +334,8 @@ export default function About() {
               <div className="text-5xl mb-4 group-hover:animate-bounce">🏆</div>
               <h3 className="text-xl font-semibold mb-3">Authorized Dealer</h3>
               <p className="text-white/90">
-                Official partner of all major laptop brands with genuine
-                products and warranties
+                Official partner of major mobile and accessory brands with
+                genuine products and warranty support
               </p>
             </div>
             <div className="text-center group">

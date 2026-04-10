@@ -64,7 +64,7 @@ const ProductCard = ({ product }) => {
       {/* New/Featured Badge */}
       <div className="absolute top-4 left-4 z-30">
         <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg backdrop-blur-sm">
-          {product.category === "laptop" ? "🔥 Hot" : "✨ New"}
+          {product.category === "accessories" ? "Daily Essential" : "Top Pick"}
         </div>
       </div>
 
@@ -321,3 +321,4 @@ const ProductCard = ({ product }) => {
 };
 
 export default ProductCard;
+

@@ -47,7 +47,7 @@ export default function Footer() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 13h.01"
                   />
                 </svg>
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
@@ -57,8 +57,9 @@ export default function Footer() {
               </h3>
             </div>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Your trusted destination for premium laptops and cutting-edge
-              technology. Experience innovation with every purchase.
+              Your trusted destination for premium mobile phones, tablets, and
+              everyday tech accessories. Experience smarter shopping with every
+              purchase.
             </p>
 
             {/* Contact Info */}

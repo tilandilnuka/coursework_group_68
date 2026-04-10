@@ -1,279 +1,481 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
-import Navbar from "./Navbar"; // Import the Navbar component
+import { ShopContext } from "@/context/show-context";
+
+const STORIES = [
+  {
+    eyebrow: "Just Arrived",
+    headline: "Galaxy S26 Ultra",
+    subhead: "Big-screen power that still fits in your pocket.",
+    body: "A flagship camera, all-day battery life, and a vivid AMOLED display make this the kind of phone that handles work, gaming, and content creation without compromise.",
+    tag: "Starting from Rs. 360,000",
+    cta: {
+      label: "Shop Flagship Phones",
+      href: "/products/allProducts?category=mobile%20phones",
+    },
+    image:
+      "https://images.unsplash.com/photo-1772182137994-4158ac33bddd?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    accentFrom: "#f97316",
+    accentTo: "#dc2626",
+    specs: ["200 MP Camera", "120 Hz AMOLED", "5000 mAh Battery"],
+  },
+  {
+    eyebrow: "For Productivity",
+    headline: "iPad Air M3",
+    subhead: "Sketch, stream, study, and ship work anywhere.",
+    body: "Pair a responsive tablet display with stylus support and a lightweight body, and you have a daily driver built for notes, meetings, and creative work on the move.",
+    tag: "Starting from Rs. 199,900",
+    cta: {
+      label: "Explore Tablets",
+      href: "/products/allProducts?category=tablets",
+    },
+    image:
+      "https://images.unsplash.com/photo-1607452258545-943d7243463c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    accentFrom: "#f97316",
+    accentTo: "#dc2626",
+    specs: ["11-inch Display", "Stylus Ready", "Wi-Fi + Cellular"],
+  },
+  {
+    eyebrow: "Audio Essentials",
+    headline: "Wireless Earbuds",
+    subhead: "Pocket-sized sound with everyday convenience.",
+    body: "Noise cancellation, long battery life, and a compact charging case make these the go-to accessory for commuting, workouts, and calls on the go.",
+    tag: "Starting from Rs. 24,900",
+    cta: {
+      label: "View Accessories",
+      href: "/products/allProducts?category=accessories",
+    },
+    image:
+      "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?w=900&h=700&fit=crop",
+    accentFrom: "#f97316",
+    accentTo: "#dc2626",
+    specs: ["ANC Audio", "24-hour Playback", "USB-C Charging"],
+  },
+  {
+    eyebrow: "Power On",
+    headline: "Fast Chargers",
+    subhead: "Reliable power for every device in your bag.",
+    body: "From GaN wall adapters to travel-ready power banks, our accessory lineup keeps phones and tablets charged at home, at work, and on the move.",
+    tag: "Starting from Rs. 8,900",
+    cta: {
+      label: "Discover Chargers",
+      href: "/products/allProducts?category=accessories",
+    },
+    image:
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=900&h=700&fit=crop",
+    accentFrom: "#f97316",
+    accentTo: "#dc2626",
+    specs: ["65 W Fast Charge", "Travel Ready", "USB-C Compatible"],
+  },
+];
+
+const STATS = [
+  { value: "10K+", label: "Customers" },
+  { value: "3", label: "Core Categories" },
+  { value: "99%", label: "Satisfaction" },
+  { value: "24/7", label: "Support" },
+];
+
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products/allProducts" },
+  { label: "About", href: "/about" },
+  { label: "Support", href: "/support" },
+];
+
+const PhoneLogo = ({ className = "w-6 h-6" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 13h.01"
+    />
+  </svg>
+);
 
 const WowHero = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeStory, setActiveStory] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [user] = useState(() => {
+    try {
+      if (typeof window === "undefined") {
+        return null;
+      }
 
-  const slides = [
-    {
-      title: "MacBook Pro M3",
-      subtitle: "Mind-blowing. Game-changing. Groundbreaking.",
-      description:
-        "The most advanced chips. The most brilliant displays. The longest battery life ever in a Mac.",
-      image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SX679_.jpg",
-      gradient: "from-purple-900 via-blue-900 to-indigo-900",
-      features: [
-        "M3 Pro Chip",
-        "18-hour Battery",
-        "Liquid Retina Display",
-        "16GB RAM",
-      ],
-    },
-    {
-      title: "Gaming Beast",
-      subtitle: "Unleash the power within.",
-      description:
-        "RTX 4090. Intel i9. 64GB RAM. Everything you need to dominate.",
-      image: "https://m.media-amazon.com/images/I/81bc8mA3nKL._AC_SX679_.jpg",
-      gradient: "from-red-900 via-orange-900 to-yellow-900",
-      features: ["RTX 4090 GPU", "Intel i9 CPU", "64GB DDR5", "2TB SSD"],
-    },
-    {
-      title: "Creator Pro",
-      subtitle: "Create without limits.",
-      description:
-        "Professional workstations for video editing, 3D rendering, and creative workflows.",
-      image: "https://m.media-amazon.com/images/I/61Qe0euJJZL._AC_SX679_.jpg",
-      gradient: "from-green-900 via-teal-900 to-cyan-900",
-    },
-    {
-      title: "Ultra Thin",
-      subtitle: "Portability redefined.",
-      description:
-        "Ultra-lightweight design meets powerful performance. Perfect for professionals on the go.",
-      image: "https://m.media-amazon.com/images/I/71TPda7cwUL._AC_SX679_.jpg",
-      gradient: "from-slate-900 via-gray-900 to-zinc-900",
-    },
-    {
-      title: "Business Elite",
-      subtitle: "Professional excellence.",
-      description:
-        "Enterprise-grade security, reliability, and performance for business professionals.",
-      image: "https://m.media-amazon.com/images/I/61CBnt6EOEL._AC_SX679_.jpg",
-      gradient: "from-blue-900 via-indigo-900 to-purple-900",
-    },
-  ];
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const { cartItems } = useContext(ShopContext);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(timer);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActiveStory((current) => (current + 1) % STORIES.length);
+    }, 6000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  const story = STORIES[activeStory];
+  const cartCount = Object.keys(cartItems ?? {}).length;
+
   return (
-    <>
-      <Navbar /> {/* Add the Navbar at the top */}
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 pt-24 pb-8">
-        {" "}
-        {/* Increased padding-top and added bottom padding */}
-        {/* Enhanced Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black opacity-80"></div>
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-orange-500/30 to-red-500/30 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-gradient-to-r from-white/10 to-gray-500/10 rounded-full blur-lg animate-bounce"></div>
-        <div className="absolute top-32 right-1/4 w-16 h-16 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-md animate-pulse delay-2000"></div>
-        <div className="absolute bottom-32 left-1/3 w-20 h-20 bg-gradient-to-r from-green-500/15 to-teal-500/15 rounded-full blur-lg animate-bounce delay-1500"></div>
-        {/* Enhanced Content Section */}
-        <div className="relative z-10 min-h-screen flex items-center justify-center max-w-7xl mx-auto px-6 py-8">
-          <div className="text-center text-white mt-8">
-            <div className="mb-6">
-              <span className="inline-block px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-sm font-semibold mb-4 animate-pulse">
-                🔥 NEW ARRIVAL
+    <div className="relative min-h-screen bg-[#080808] overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0 transition-all duration-1000"
+        style={{
+          background: `radial-gradient(ellipse 70% 55% at 65% 40%, ${story.accentFrom}18 0%, transparent 70%)`,
+        }}
+      />
+
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-black/80 backdrop-blur-xl border-b border-white/[0.08] shadow-xl shadow-black/40"
+            : "bg-transparent border-b border-transparent"
+        }`}
+      >
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 h-[64px] flex items-center gap-6">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 shrink-0 group mr-2"
+          >
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-600/30">
+              <PhoneLogo />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-white hidden sm:block">
+              Tech<span className="text-orange-500">Store</span>
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-1 flex-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/[0.07] transition-all duration-200"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden md:flex items-center flex-1 max-w-[280px] relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full pl-4 pr-4 py-2 text-sm bg-white/[0.06] border border-white/[0.1] rounded-xl text-white placeholder-white/30 focus:border-orange-500/60 focus:bg-white/[0.09] transition-all duration-200 outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 ml-auto md:ml-0 shrink-0">
+            <Link
+              href="/products/cart"
+              className="relative p-2 text-white/60 hover:text-white hover:bg-white/[0.07] rounded-lg transition-all duration-200"
+              aria-label="Cart"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.5 5M7 13l2.5 5m0 0L17 18M9 19.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            {user ? (
+              <Link
+                href="/users/profile"
+                className="p-2 text-white/60 hover:text-white hover:bg-white/[0.07] rounded-lg transition-all duration-200"
+                aria-label="Profile"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </Link>
+            ) : (
+              <Link
+                href="/users/login"
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-xl hover:from-orange-400 hover:to-red-500 transition-all duration-200"
+              >
+                Sign In
+              </Link>
+            )}
+
+            <button
+              className="md:hidden p-2 text-white/60 hover:text-white hover:bg-white/[0.07] rounded-lg transition-all duration-200"
+              onClick={() => setMobileOpen((value) => !value)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d={
+                    mobileOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-white/[0.08] px-6 py-4 flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-sm font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/[0.07] transition-all duration-200"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <main className="relative z-10 min-h-screen flex flex-col">
+        <div className="flex-1 max-w-[1440px] mx-auto w-full px-6 sm:px-10 pt-[96px] pb-12 flex flex-col lg:grid lg:grid-cols-[1fr_1fr] lg:gap-10 items-stretch">
+          <div className="flex flex-col justify-center order-2 lg:order-1 mt-8 lg:mt-0">
+            <div className="inline-flex items-center gap-2 mb-6 self-start">
+              <span
+                className="px-3 py-1 text-xs font-semibold tracking-widest uppercase rounded-full border"
+                style={{
+                  color: story.accentFrom,
+                  borderColor: `${story.accentFrom}40`,
+                  background: `${story.accentFrom}12`,
+                }}
+              >
+                {story.eyebrow}
               </span>
             </div>
-            <h1 className="text-7xl md:text-8xl font-thin mb-6 leading-tight">
-              <span className="block bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                {slides[currentSlide].title}
-              </span>
+
+            <h1 className="text-[3.5rem] sm:text-[4.5rem] lg:text-[5.5rem] font-extralight leading-[1.05] tracking-tight text-white mb-4">
+              {story.headline}
             </h1>
-            <h2 className="text-3xl md:text-4xl font-light mb-6 text-gray-300">
-              {slides[currentSlide].subtitle}
-            </h2>
-            <p className="text-xl text-gray-400 mb-8 max-w-2xl leading-relaxed mx-auto">
-              {slides[currentSlide].description}
+
+            <p className="text-xl sm:text-2xl font-light text-white/60 mb-5 leading-snug">
+              {story.subhead}
             </p>
 
-            {/* Feature Highlights */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-4xl mx-auto">
-              {slides[currentSlide].features?.map((feature, index) => (
-                <div
-                  key={index}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-orange-500/30 transition-all duration-300 group"
+            <p className="text-base text-white/45 leading-relaxed max-w-[480px] mb-8">
+              {story.body}
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-10">
+              {story.specs.map((spec) => (
+                <span
+                  key={spec}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/70 bg-white/[0.06] border border-white/[0.08]"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full group-hover:animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
-                      {feature}
-                    </span>
-                  </div>
-                </div>
+                  {spec}
+                </span>
               ))}
             </div>
 
-            {/* Statistics */}
-            <div className="flex flex-wrap justify-center gap-8 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                  10K+
-                </div>
-                <div className="text-sm text-gray-400">Happy Customers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                  50+
-                </div>
-                <div className="text-sm text-gray-400">Laptop Models</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                  99%
-                </div>
-                <div className="text-sm text-gray-400">Satisfaction</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                  24/7
-                </div>
-                <div className="text-sm text-gray-400">Support</div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <Link
-                href="/products/allProducts"
-                className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-2xl overflow-hidden transform hover:scale-105 transition-all duration-300"
+                href={story.cta.href}
+                className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-xl text-sm font-semibold text-white shadow-xl transition-all duration-300"
+                style={{
+                  background: `linear-gradient(135deg, ${story.accentFrom}, ${story.accentTo})`,
+                  boxShadow: `0 8px 32px ${story.accentFrom}30`,
+                }}
               >
-                <span className="relative z-10">Shop Now</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {story.cta.label}
               </Link>
               <Link
-                href="/about" /* Updated to navigate to the about page */
-                className="group relative px-8 py-4 border-2 border-white text-white font-semibold rounded-2xl overflow-hidden transform hover:scale-105 hover:bg-white hover:text-black transition-all duration-300"
+                href="#discover"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-medium text-white/50 border border-white/[0.1] hover:text-white hover:border-white/25 hover:bg-white/[0.05] transition-all duration-300"
               >
-                <span className="relative z-10">Learn More</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-500 to-gray-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                Browse all products
               </Link>
             </div>
 
-            {/* Social Media Links */}
-            <div className="flex justify-center space-x-6 mt-12">
-              <a
-                href="#"
-                className="group p-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-orange-500/50 transition-all duration-300"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                </svg>
-              </a>
-              <a
-                href="#"
-                className="group p-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-orange-500/50 transition-all duration-300"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
-                </svg>
-              </a>
-              <a
-                href="#"
-                className="group p-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-orange-500/50 transition-all duration-300"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
-                </svg>
-              </a>
-              <a
-                href="#"
-                className="group p-3 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-orange-500/50 transition-all duration-300"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-orange-500 transition-colors"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.070-4.85.070-3.204 0-3.584-.012-4.849-.070-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                </svg>
-              </a>
-            </div>
+            <p className="mt-5 text-xs text-white/25 font-medium tracking-wide">
+              {story.tag}
+            </p>
           </div>
-        </div>
-        {/* Modern floating elements */}
-        <div className="absolute top-32 left-8 hidden lg:block">
-          {" "}
-          {/* Adjusted top position */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">
-                  Free Shipping
+
+          <div className="relative flex items-center justify-center order-1 lg:order-2 w-full min-h-[420px] lg:min-h-0">
+            <div
+              className="absolute inset-[-2px] rounded-3xl transition-all duration-1000 blur-2xl opacity-40"
+              style={{
+                background: `radial-gradient(ellipse at 50% 60%, ${story.accentFrom}55 0%, ${story.accentTo}22 55%, transparent 80%)`,
+              }}
+            />
+
+            <div
+              className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl"
+              style={{
+                background: `linear-gradient(145deg, ${story.accentFrom}14, #111 60%, ${story.accentTo}0a)`,
+                border: `1px solid ${story.accentFrom}30`,
+                boxShadow: `0 0 0 1px ${story.accentFrom}10, 0 32px 80px -20px ${story.accentFrom}35, inset 0 1px 0 ${story.accentFrom}20`,
+                minHeight: "460px",
+              }}
+            >
+              {STORIES.map((s, i) => (
+                <img
+                  key={s.headline}
+                  src={s.image}
+                  alt={s.headline}
+                  draggable={false}
+                  className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none transition-opacity duration-700"
+                  style={{ opacity: i === activeStory ? 1 : 0 }}
+                />
+              ))}
+
+              <div
+                className="absolute bottom-0 inset-x-0 px-6 py-5 flex items-end justify-between gap-4"
+                style={{
+                  background: `linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)`,
+                  backdropFilter: "blur(2px)",
+                }}
+              >
+                <div>
+                  <p
+                    className="text-[11px] font-semibold tracking-widest uppercase mb-1"
+                    style={{ color: story.accentFrom }}
+                  >
+                    {story.eyebrow}
+                  </p>
+                  <p className="text-sm font-semibold text-white">
+                    {story.tag}
+                  </p>
                 </div>
-                <div className="text-xs text-gray-400">On orders over $500</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="absolute top-1/2 right-8 hidden lg:block transform -translate-y-1/2">
-          {" "}
-          {/* Added transform for better centering */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <Link
+                  href={story.cta.href}
+                  className="shrink-0 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all duration-300"
+                  style={{
+                    background: `linear-gradient(135deg, ${story.accentFrom}, ${story.accentTo})`,
+                    boxShadow: `0 4px 16px ${story.accentFrom}40`,
+                  }}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">
-                  Secure Payment
+                  {story.cta.label}
+                </Link>
+                <div className="absolute bottom-20 left-4 hidden sm:flex items-center gap-3 bg-black/40 backdrop-blur-xl border border-white/[0.12] rounded-2xl px-4 py-3 shadow-2xl z-10">
+                  <span
+                    className="flex items-center justify-center w-8 h-8 rounded-xl shrink-0"
+                    style={{ background: `${story.accentFrom}22` }}
+                  >
+                    <PhoneLogo className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <div className="text-xs font-semibold text-white">
+                      Free Delivery
+                    </div>
+                    <div className="text-[11px] text-white/50">
+                      Orders above Rs. 50,000
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-400">SSL Encrypted</div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
+
+        <div className="max-w-[1440px] mx-auto w-full px-6 sm:px-10 pb-16 flex flex-col gap-10">
+          <div className="flex items-center gap-3 flex-wrap">
+            {STORIES.map((item, index) => (
+              <button
+                key={item.headline}
+                onClick={() => setActiveStory(index)}
+                aria-label={`View story: ${item.headline}`}
+                className="group flex items-center gap-3 transition-all duration-300"
+              >
+                <span
+                  className="relative h-[2px] rounded-full overflow-hidden bg-white/[0.12] transition-all duration-300"
+                  style={{ width: index === activeStory ? 48 : 16 }}
+                >
+                  {index === activeStory && (
+                    <span
+                      className="absolute inset-0 rounded-full"
+                      style={{ background: story.accentFrom }}
+                    />
+                  )}
+                </span>
+                <span
+                  className={`hidden sm:block text-xs font-medium transition-colors duration-300 ${
+                    index === activeStory
+                      ? "text-white"
+                      : "text-white/25 group-hover:text-white/50"
+                  }`}
+                >
+                  {item.headline}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            {STATS.map(({ value, label }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center py-6 px-4 bg-[#080808] hover:bg-white/[0.03] transition-colors duration-300"
+              >
+                <span
+                  className="text-2xl sm:text-3xl font-bold tracking-tight"
+                  style={{ color: story.accentFrom }}
+                >
+                  {value}
+                </span>
+                <span className="text-xs text-white/35 font-medium mt-1">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 

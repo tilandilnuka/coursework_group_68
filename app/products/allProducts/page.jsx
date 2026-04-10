@@ -4,7 +4,7 @@ import { allProducts, searchProducts } from "@/actions/product";
 import { Suspense, useState, useEffect, useContext } from "react";
 import { ShopContext } from "@/context/show-context";
 import ModernToast from "@/components/ModernToast";
-import { brands } from "@/constants";
+import { brands, storefrontCategories } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
@@ -77,15 +77,7 @@ const AllProductsContent = () => {
     });
   };
 
-  useEffect(() => {
-    if (search.length == 0) {
-      handleSubmit();
-    } else {
-      handleSearchSubmit();
-    }
-  }, [searchValues]);
-
-  const handleSearchSubmit = async () => {
+  async function handleSearchSubmit() {
     setLoading(true);
     await searchProducts({ search: search })
       .then((data) => {
@@ -105,13 +97,9 @@ const AllProductsContent = () => {
         console.log(err);
       })
       .finally(() => setLoading(false));
-  };
+  }
 
-  useEffect(() => {
-    handleSubmit();
-  }, [page, filterValues]);
-
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     if (e) {
       e.preventDefault();
     }
@@ -154,7 +142,23 @@ const AllProductsContent = () => {
         });
       })
       .finally(() => setLoading(false));
-  };
+  }
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      if (search.length == 0) {
+        handleSubmit();
+      } else {
+        handleSearchSubmit();
+      }
+    });
+  }, [search]);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      handleSubmit();
+    });
+  }, [page, filterValues]);
 
   const handleAddToCart = (product) => {
     addToCart(product._id, product.price, product.title, product.images[0]);
@@ -190,8 +194,8 @@ const AllProductsContent = () => {
               </span>
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Explore cutting-edge laptops and powerful desktops designed for
-              professionals and enthusiasts
+              Explore premium mobile phones, tablets, and accessories chosen
+              for work, play, and daily life
             </p>
           </div>
 
@@ -282,8 +286,11 @@ const AllProductsContent = () => {
                 onChange={handleChange("category")}
               >
                 <option value="">All Categories</option>
-                <option value="laptop">💻 Laptops</option>
-                <option value="desktop">🖥️ Desktops</option>
+                {storefrontCategories.map((item) => (
+                  <option value={item.name} key={item.name}>
+                    {item.displayName}
+                  </option>
+                ))}
               </select>
               <svg
                 className="absolute right-3 top-12 w-5 h-5 text-gray-400 pointer-events-none"
@@ -399,7 +406,7 @@ const AllProductsContent = () => {
               <div className="w-12 h-12 border-4 border-gray-500 rounded-full animate-spin border-t-pink-500 absolute top-4 left-4 animation-delay-600"></div>
             </div>
             <p className="text-gray-400 mt-6 text-lg">
-              Loading amazing products for you...
+              Loading the latest mobile gear for you...
             </p>
           </div>
         )}
@@ -599,8 +606,9 @@ const AllProductsContent = () => {
                 No Products Found
               </h2>
               <p className="text-gray-400 text-lg max-w-md mx-auto leading-relaxed mb-8">
-                We couldn't find any products matching your search criteria. Try
-                adjusting your filters or search terms.
+                We could not find any phones, tablets, or accessories matching
+                your search criteria. Try adjusting your filters or search
+                terms.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -722,3 +730,4 @@ export default function AllProducts() {
     </Suspense>
   );
 }
+

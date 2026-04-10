@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getCategoryStats } from "@/actions/category";
 import ModernToast from "@/components/ModernToast";
+import { storefrontCategories } from "@/constants";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -19,97 +20,58 @@ export default function CategoriesPage() {
     setAlert({ message: "", error: false, loading: false, success: false });
   };
 
-  const defaultCategories = [
-    {
-      name: "laptop",
-      displayName: "Gaming Laptops",
-      description: "High-performance machines for gamers and professionals",
-      color: "from-red-500 to-orange-500",
-      icon: "🎮",
-      image:
-        "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400&h=300&fit=crop",
-    },
-    {
-      name: "desktop",
-      displayName: "Desktop PCs",
-      description: "Powerful desktop solutions for work and gaming",
-      color: "from-blue-500 to-purple-500",
-      icon: "🖥️",
-      image:
-        "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=400&h=300&fit=crop",
-    },
-    {
-      name: "accessories",
-      displayName: "Accessories",
-      description: "Complete your setup with premium accessories",
-      color: "from-green-500 to-teal-500",
-      icon: "⚡",
-      image:
-        "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop",
-    },
-    {
-      name: "business",
-      displayName: "Business Laptops",
-      description: "Professional workstations for enterprise",
-      color: "from-indigo-500 to-blue-500",
-      icon: "💼",
-      image:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
-    },
-  ];
-
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await getCategoryStats();
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const response = await getCategoryStats();
+        if (response?.status === "success") {
+          const mergedCategories = storefrontCategories.map((category) => {
+            const backendCategory = response.data?.find(
+              (item) => item._id?.toLowerCase() === category.name.toLowerCase(),
+            );
 
-      if (response && response.status === "success") {
-        const mergedCategories = defaultCategories.map((defaultCat) => {
-          const backendCat = response.data?.find(
-            (cat) => cat._id?.toLowerCase() === defaultCat.name.toLowerCase(),
-          );
+            return {
+              ...category,
+              id: category.name,
+              count: backendCategory ? backendCategory.count : 0,
+            };
+          });
 
-          return {
-            ...defaultCat,
-            count: backendCat ? backendCat.count : 0,
-            id: defaultCat.name,
-          };
-        });
+          setCategories(mergedCategories);
+          return;
+        }
 
-        setCategories(mergedCategories);
-      } else {
         setCategories(
-          defaultCategories.map((cat) => ({
-            ...cat,
-            id: cat.name,
+          storefrontCategories.map((category) => ({
+            ...category,
+            id: category.name,
             count: 0,
           })),
         );
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setAlert({
+          message: "Failed to load categories",
+          error: true,
+          loading: false,
+          success: false,
+        });
+        setCategories(
+          storefrontCategories.map((category) => ({
+            ...category,
+            id: category.name,
+            count: 0,
+          })),
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setAlert({
-        message: "Failed to load categories",
-        error: true,
-        loading: false,
-        success: false,
-      });
+    };
 
-      setCategories(
-        defaultCategories.map((cat) => ({
-          ...cat,
-          id: cat.name,
-          count: 0,
-        })),
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchCategories();
+  }, []);
 
   if (loading) {
     return (
@@ -124,9 +86,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-20">
-      {alert && alert?.message && (
-        <ModernToast alert={alert} setAlert={resetAlert} />
-      )}
+      {alert?.message && <ModernToast alert={alert} setAlert={resetAlert} />}
 
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
@@ -141,7 +101,7 @@ export default function CategoriesPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
           </div>
@@ -152,13 +112,13 @@ export default function CategoriesPage() {
             </span>
           </h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Discover our premium collection of laptops, desktops, and
-            accessories
+            Discover our focused collection of mobile phones, tablets, and
+            accessories.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mb-16">
-          {categories.map((category, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {categories.map((category) => (
             <Link
               key={category.id}
               href={`/products/allProducts?category=${category.name}`}
@@ -216,12 +176,11 @@ export default function CategoriesPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
           <div className="relative z-10">
             <h2 className="text-4xl font-bold text-white mb-6">
-              🔥 Special Offers
+              Featured Device Deals
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-              Get up to{" "}
-              <span className="font-bold text-yellow-300">30% OFF</span> on
-              selected categories
+              Save up to <span className="font-bold text-yellow-300">30% OFF</span>{" "}
+              selected phone, tablet, and accessory bundles.
             </p>
             <Link
               href="/products/allProducts"

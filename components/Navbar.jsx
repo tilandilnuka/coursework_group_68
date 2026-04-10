@@ -61,7 +61,7 @@ const NavBar = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 13h.01"
                 />
               </svg>
             </div>
@@ -92,7 +92,7 @@ const NavBar = () => {
           <div className="relative w-full">
             <input
               type="text"
-              placeholder="Search laptops, desktops..."
+              placeholder="Search phones, tablets, accessories..."
               className="w-full px-4 py-2 pl-10 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:ring-0 transition-all duration-300"
             />
             <svg
@@ -146,7 +146,7 @@ const NavBar = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 13h.01"
               />
             </svg>
             Products

@@ -6,6 +6,7 @@ import { updateProduct, oneProduct } from "@/actions/product";
 import SideBar from "@/components/SideBar";
 import { useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
+import { categoryData, subCategoryData } from "@/constants";
 
 const UpdateProductContent = () => {
   const searchParams = useSearchParams();
@@ -250,11 +251,12 @@ const UpdateProductContent = () => {
                       onChange={handleChange("category")}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     >
-                      <option selected="">Select category</option>
-                      <option value="TV">TV/Monitors</option>
-                      <option value="PC">PC</option>
-                      <option value="GA">Gaming/Console</option>
-                      <option value="PH">Phones</option>
+                      <option value="">Select category</option>
+                      {categoryData.map((item) => (
+                        <option value={item} key={item}>
+                          {item}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -270,11 +272,12 @@ const UpdateProductContent = () => {
                       onChange={handleChange("subCategory")}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     >
-                      <option selected="">Select Sub-Category</option>
-                      <option value="TV">TV/Monitors</option>
-                      <option value="PC">PC</option>
-                      <option value="GA">Gaming/Console</option>
-                      <option value="PH">Phones</option>
+                      <option value="">Select Sub-Category</option>
+                      {subCategoryData.map((item) => (
+                        <option value={item} key={item}>
+                          {item}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="w-full">
@@ -795,3 +798,4 @@ export default function UpdateProduct() {
     </Suspense>
   );
 }
+
