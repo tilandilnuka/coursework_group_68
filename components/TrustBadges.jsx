@@ -1,119 +1,191 @@
 "use client";
 
+import Image from "next/image";
+import {
+  FiTruck,
+  FiShield,
+  FiRefreshCcw,
+  FiCheckCircle,
+  FiHeadphones,
+  FiZap,
+  FiLock,
+  FiCreditCard,
+} from "react-icons/fi";
+
 const TrustBadges = () => {
   const badges = [
     {
-      icon: "🚚",
+      icon: <FiTruck />,
       title: "Free Shipping",
       description: "On orders over Rs. 50,000",
     },
     {
-      icon: "🔒",
+      icon: <FiLock />,
       title: "Secure Payment",
       description: "256-bit SSL encryption",
     },
     {
-      icon: "↩️",
+      icon: <FiRefreshCcw />,
       title: "30-Day Returns",
       description: "On eligible items",
     },
     {
-      icon: "🛡️",
+      icon: <FiShield />,
       title: "Warranty Support",
       description: "On genuine devices",
     },
     {
-      icon: "📞",
+      icon: <FiHeadphones />,
       title: "24/7 Support",
       description: "Expert product help",
     },
     {
-      icon: "⚡",
+      icon: <FiZap />,
       title: "Same Day Delivery",
       description: "In Colombo area",
     },
   ];
 
   const partners = [
-    { name: "Apple", logo: "🍎" },
-    { name: "Samsung", logo: "📱" },
-    { name: "Google", logo: "🔎" },
-    { name: "Xiaomi", logo: "⚡" },
-    { name: "Anker", logo: "🔋" },
-    { name: "JBL", logo: "🎧" },
+    {
+      name: "Apple",
+      logo: (
+        <Image
+          src="/logos/Apple.svg"
+          alt="Apple"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
+    {
+      name: "Samsung",
+      logo: (
+        <Image
+          src="/logos/Samsung.svg"
+          alt="Samsung"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
+    {
+      name: "Google",
+      logo: (
+        <Image
+          src="/logos/Google.svg"
+          alt="Google"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
+    {
+      name: "Xiaomi",
+      logo: (
+        <Image
+          src="/logos/Xiaomi.svg"
+          alt="Xiaomi"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
+    {
+      name: "Anker",
+      logo: (
+        <Image
+          src="/logos/Anker.svg"
+          alt="Anker"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
+    {
+      name: "JBL",
+      logo: (
+        <Image
+          src="/logos/JBL.svg"
+          alt="JBL"
+          width={48}
+          height={48}
+          className="object-contain transition-all duration-300"
+        />
+      ),
+    },
   ];
 
   return (
-    <section className="relative py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 border-t border-gray-200 overflow-hidden">
-      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-r from-orange-200/30 to-red-200/30 rounded-full blur-3xl -translate-x-32 -translate-y-32 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full blur-3xl translate-x-32 translate-y-32 animate-pulse delay-1000"></div>
+    <section className="relative py-24 bg-white border-t border-gray-100 overflow-hidden text-gray-900">
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-gray-50/80 to-transparent pointer-events-none"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-20">
+      <div className="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-10">
+        <div className="text-center mb-16">
+          <h2 className="text-sm font-semibold tracking-widest text-orange-500 uppercase mb-3">
+            Why Choose Us
+          </h2>
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+            Premium Service. Verified Quality.
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 mb-24">
           {badges.map((badge) => (
             <div
               key={badge.title}
-              className="group relative bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center hover:bg-white/80 hover:border-orange-200/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+              className="group flex flex-col items-center bg-gray-50/50 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 text-center hover:bg-white hover:border-orange-200 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-100/20 to-red-100/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              <div className="relative z-10">
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {badge.icon}
-                </div>
-                <h3 className="font-bold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors duration-300 text-lg">
-                  {badge.title}
-                </h3>
-                <p className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-300">
-                  {badge.description}
-                </p>
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white text-orange-500 text-2xl shadow-sm border border-gray-100 mb-5 group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-orange-500 group-hover:to-red-600 group-hover:text-white group-hover:border-transparent transition-all duration-300">
+                {badge.icon}
               </div>
+              <h4 className="font-semibold text-gray-900 mb-1.5 text-sm md:text-base">
+                {badge.title}
+              </h4>
+              <p className="text-xs md:text-sm text-gray-500">
+                {badge.description}
+              </p>
             </div>
           ))}
         </div>
 
-        <div className="text-center mb-20">
-          <div className="inline-block mb-12">
-            <h3 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent mb-4">
-              Authorized Partner of Leading Mobile Brands
-            </h3>
-            <div className="w-24 h-1 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full"></div>
+        <div className="border-t border-b border-gray-100 py-16 mb-20 relative">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-6 text-xs md:text-sm font-medium text-gray-400 tracking-wide uppercase">
+            Authorized Partner
           </div>
-
-          <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-8 border border-white/30">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-              {partners.map((partner) => (
-                <div
-                  key={partner.name}
-                  className="group flex flex-col items-center space-y-3 p-4 rounded-xl hover:bg-white/60 hover:shadow-lg transition-all duration-300"
-                >
-                  <div className="text-4xl group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300">
-                    {partner.logo}
-                  </div>
-                  <span className="text-lg font-bold text-gray-700 group-hover:text-orange-600 transition-colors duration-300">
-                    {partner.name}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 lg:gap-20 hover:transition-duration-500">
+            {partners.map((partner) => (
+              <div
+                key={partner.name}
+                className="flex items-center justify-center transform hover:scale-105 transition-transform duration-300"
+                title={partner.name}
+              >
+                {partner.logo}
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="flex justify-center">
-          <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 shadow-2xl">
-            <div className="flex flex-wrap justify-center items-center gap-12">
-              <div className="group flex items-center space-x-3 text-white hover:text-orange-400 transition-colors duration-300">
-                <div className="text-3xl group-hover:animate-pulse">🔐</div>
-                <span className="text-lg font-semibold">SSL Secured</span>
-              </div>
-              <div className="group flex items-center space-x-3 text-white hover:text-orange-400 transition-colors duration-300">
-                <div className="text-3xl group-hover:animate-pulse">💳</div>
-                <span className="text-lg font-semibold">PCI Compliant</span>
-              </div>
-              <div className="group flex items-center space-x-3 text-white hover:text-orange-400 transition-colors duration-300">
-                <div className="text-3xl group-hover:animate-pulse">✅</div>
-                <span className="text-lg font-semibold">Verified Business</span>
-              </div>
+          <div className="bg-white border border-gray-100 rounded-3xl px-6 md:px-12 py-6 shadow-sm flex flex-col md:flex-row items-center gap-6 md:gap-12">
+            <div className="flex items-center space-x-3 text-gray-600">
+              <FiLock className="text-xl text-orange-500" />
+              <span className="text-sm font-medium">SSL Secured Checkout</span>
+            </div>
+            <div className="hidden md:block w-px h-6 bg-gray-200"></div>
+            <div className="flex items-center space-x-3 text-gray-600">
+              <FiCreditCard className="text-xl text-orange-500" />
+              <span className="text-sm font-medium">PCI Compliant</span>
+            </div>
+            <div className="hidden md:block w-px h-6 bg-gray-200"></div>
+            <div className="flex items-center space-x-3 text-gray-600">
+              <FiCheckCircle className="text-xl text-orange-500" />
+              <span className="text-sm font-medium">Verified Enterprise</span>
             </div>
           </div>
         </div>
