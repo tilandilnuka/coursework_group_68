@@ -324,11 +324,8 @@ const WowHero = () => {
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <Link
                 href={story.cta.href}
-                className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-xl text-sm font-semibold text-white shadow-xl transition-all duration-300"
-                style={{
-                  background: `linear-gradient(135deg, ${story.accentFrom}, ${story.accentTo})`,
-                  boxShadow: `0 8px 32px ${story.accentFrom}30`,
-                }}
+                className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 shadow-xl transition-all duration-200"
+                style={{ boxShadow: `0 8px 32px ${story.accentFrom}30` }}
               >
                 {story.cta.label}
               </Link>
@@ -393,11 +390,8 @@ const WowHero = () => {
                 </div>
                 <Link
                   href={story.cta.href}
-                  className="shrink-0 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all duration-300"
-                  style={{
-                    background: `linear-gradient(135deg, ${story.accentFrom}, ${story.accentTo})`,
-                    boxShadow: `0 4px 16px ${story.accentFrom}40`,
-                  }}
+                  className="shrink-0 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 transition-all duration-200"
+                  style={{ boxShadow: `0 4px 16px ${story.accentFrom}40` }}
                 >
                   {story.cta.label}
                 </Link>

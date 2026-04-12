@@ -12,9 +12,10 @@ const LiveChat = () => {
       time: new Date().toLocaleTimeString(),
     },
   ]);
+
   const [newMessage, setNewMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
-  const [chatHistory, setChatHistory] = useState([]); // Chat history state
+  const [isTyping, setIsTyping] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
 
   const quickReplies = [
     "Product information",
@@ -24,7 +25,6 @@ const LiveChat = () => {
   ];
 
   useEffect(() => {
-    // Load chat history from local storage
     const savedHistory = localStorage.getItem("chatHistory");
     if (savedHistory) {
       setChatHistory(JSON.parse(savedHistory));
@@ -33,7 +33,6 @@ const LiveChat = () => {
   }, []);
 
   useEffect(() => {
-    // Save chat history to local storage
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
 
@@ -49,7 +48,6 @@ const LiveChat = () => {
       setMessages([...messages, userMessage]);
       setNewMessage("");
 
-      // Simulate agent response
       setIsTyping(true);
       setTimeout(() => {
         const agentResponse = {
@@ -88,16 +86,13 @@ const LiveChat = () => {
 
   return (
     <>
-      {/* Chat Widget */}
       <div
         className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
           isOpen ? "w-96 h-[500px]" : "w-16 h-16"
         }`}
       >
         {isOpen ? (
-          /* Chat Window */
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 h-full flex flex-col">
-            {/* Header */}
             <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-t-2xl flex items-center justify-between">
               <div className="flex items-center">
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3">
@@ -130,7 +125,6 @@ const LiveChat = () => {
               </button>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 p-4 overflow-y-auto space-y-4 chat-box">
               {messages.map((message) => (
                 <div
@@ -168,7 +162,6 @@ const LiveChat = () => {
               )}
             </div>
 
-            {/* Quick Replies */}
             <div className="p-4 border-t border-gray-200">
               <div className="flex flex-wrap gap-2 mb-3">
                 {quickReplies.map((reply, index) => (
@@ -182,7 +175,6 @@ const LiveChat = () => {
                 ))}
               </div>
 
-              {/* Message Input */}
               <form onSubmit={handleSendMessage} className="flex gap-2">
                 <input
                   type="text"
@@ -219,7 +211,6 @@ const LiveChat = () => {
             </div>
           </div>
         ) : (
-          /* Chat Button */
           <button
             onClick={() => setIsOpen(true)}
             className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center relative"
@@ -238,7 +229,6 @@ const LiveChat = () => {
               />
             </svg>
 
-            {/* Notification Dot */}
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             </div>
@@ -246,7 +236,6 @@ const LiveChat = () => {
         )}
       </div>
 
-      {/* Floating Help Text */}
       {!isOpen && (
         <div className="fixed bottom-24 right-6 z-40 bg-black text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           Need help? Chat with us!
