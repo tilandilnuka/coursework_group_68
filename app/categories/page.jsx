@@ -179,7 +179,8 @@ export default function CategoriesPage() {
               Featured Device Deals
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-              Save up to <span className="font-bold text-yellow-300">30% OFF</span>{" "}
+              Save up to{" "}
+              <span className="font-bold text-yellow-300">30% OFF</span>{" "}
               selected phone, tablet, and accessory bundles.
             </p>
             <Link

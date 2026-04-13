@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 
 const FloatingActions = () => {
@@ -36,7 +35,6 @@ const FloatingActions = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Action Items */}
       <motion.div
         className={`flex flex-col gap-3 mb-4`}
         initial={{ opacity: 0, y: 20 }}
@@ -63,7 +61,6 @@ const FloatingActions = () => {
         ))}
       </motion.div>
 
-      {/* Main FAB Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         className={`w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300`}

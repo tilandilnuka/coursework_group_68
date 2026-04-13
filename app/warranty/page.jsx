@@ -34,8 +34,8 @@ export default function Warranty() {
           </h2>
 
           <p className="text-gray-300 mb-4">
-            All eligible phones, tablets, and branded accessories purchased
-            from TechStore include manufacturer warranty coverage:
+            All eligible phones, tablets, and branded accessories purchased from
+            TechStore include manufacturer warranty coverage:
           </p>
 
           <ul className="space-y-2 text-gray-300">
@@ -186,4 +186,3 @@ export default function Warranty() {
     </div>
   );
 }
-

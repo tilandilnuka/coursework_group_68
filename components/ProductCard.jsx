@@ -24,33 +24,28 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addToCart(product._id);
-    // Show success feedback
   };
 
   const discountPrice = product.price * 1.15;
   const discountPercentage = Math.round(
-    ((discountPrice - product.price) / discountPrice) * 100
+    ((discountPrice - product.price) / discountPrice) * 100,
   );
 
-  // Product specs for display
   const specs = [
     { label: "Processor", value: product.processor },
     { label: "RAM", value: product.ram },
     { label: "Storage", value: product.storage },
     { label: "Graphics", value: product.graphics },
     { label: "Display", value: product.display },
-  ].filter((spec) => spec.value); // Only show specs that have values
+  ].filter((spec) => spec.value);
 
   return (
     <div className="car-card group relative overflow-hidden transform transition-all duration-700 hover:scale-[1.03] hover:shadow-2xl hover:shadow-orange-500/20 bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl">
-      {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
 
-      {/* Decorative Elements */}
       <div className="absolute top-20 right-6 w-12 h-12 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-      {/* Discount Badge */}
       {discountPercentage > 0 && (
         <div className="absolute top-4 right-4 z-30">
           <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg backdrop-blur-sm">
@@ -61,14 +56,12 @@ const ProductCard = ({ product }) => {
         </div>
       )}
 
-      {/* New/Featured Badge */}
       <div className="absolute top-4 left-4 z-30">
         <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg backdrop-blur-sm">
           {product.category === "accessories" ? "Daily Essential" : "Top Pick"}
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="absolute top-20 right-6 z-30 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
         <div className="flex flex-col gap-3">
           <button
@@ -115,7 +108,6 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="relative p-4">
-        {/* Product Image */}
         <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden bg-gradient-to-br from-gray-50/80 to-gray-100/80 backdrop-blur-sm group-hover:shadow-xl group-hover:shadow-orange-500/10 transition-all duration-700 border border-gray-200/50">
           {!imageError && product?.images && product.images.length > 0 ? (
             <Image
@@ -143,7 +135,6 @@ const ProductCard = ({ product }) => {
             </div>
           )}
 
-          {/* Overlay with quick actions */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
             <button
               onClick={(e) => {
@@ -157,7 +148,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Product Title and Details */}
         <div className="px-2">
           <h2 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors duration-300">
             {product?.title ||
@@ -166,20 +156,16 @@ const ProductCard = ({ product }) => {
               "Untitled Product"}
           </h2>
 
-          {/* Category Badge */}
           <div className="mb-3">
             <span className="text-xs text-gray-500 bg-gray-100/80 backdrop-blur-sm px-2 py-1 rounded-full font-medium border border-gray-200/50">
               {product.category?.toUpperCase() || "PRODUCT"}
             </span>
           </div>
 
-          {/* Rating and Reviews */}
           <div className="flex items-center gap-2 mb-3">
             <div className="flex text-yellow-400 text-sm">{"★".repeat(5)}</div>
             <span className="text-gray-600 text-sm font-medium">(4.8)</span>
           </div>
-
-          {/* Price Section */}
           <div className="mb-4">
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-2xl font-bold text-gray-800">
@@ -210,7 +196,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Specifications Panel */}
         {showSpecs && (
           <div className="mb-6 p-5 bg-gradient-to-br from-gray-50/80 to-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg animate-fadeIn">
             <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-lg">
@@ -242,7 +227,6 @@ const ProductCard = ({ product }) => {
           </div>
         )}
 
-        {/* Key Features */}
         <div className="px-2 mb-4">
           <div className="flex flex-wrap gap-1.5">
             {specs.slice(0, 2).map((spec, index) => (
@@ -261,7 +245,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="px-2 space-y-2">
           <button
             onClick={() =>
@@ -321,4 +304,3 @@ const ProductCard = ({ product }) => {
 };
 
 export default ProductCard;
-

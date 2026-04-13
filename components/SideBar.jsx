@@ -34,7 +34,6 @@ const SideBar = ({ children }) => {
 
   return (
     <>
-      {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="fixed top-4 left-4 z-[60] p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 sm:hidden"
@@ -46,7 +45,6 @@ const SideBar = ({ children }) => {
         )}
       </button>
 
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black bg-opacity-50 sm:hidden"
@@ -62,11 +60,9 @@ const SideBar = ({ children }) => {
         aria-label="Sidebar"
       >
         <div className="h-full px-6 py-8 overflow-y-auto scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700 hover:scrollbar-thumb-gray-600 relative">
-          {/* Animated background elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-2xl"></div>
           <div className="absolute bottom-1/4 left-0 w-24 h-24 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-xl"></div>
 
-          {/* User info section */}
           <div className="relative z-10 mb-8 p-4 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
@@ -82,7 +78,6 @@ const SideBar = ({ children }) => {
           </div>
           {user?.role == "admin" && (
             <ul className="space-y-4 font-medium relative z-10">
-              {/* Dashboard/Home */}
               <li>
                 <Link
                   href="/"
@@ -97,7 +92,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* Profile */}
               <li>
                 <Link
                   href={`/users/profile`}
@@ -112,7 +106,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* Create Product */}
               <li>
                 <Link
                   href={`/products/createProduct`}
@@ -127,7 +120,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* All Users */}
               <li>
                 <Link
                   href={`/users/allUsers`}
@@ -142,7 +134,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* All Products */}
               <li>
                 <Link
                   href="/products/allProducts"
@@ -157,7 +148,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* All Orders */}
               <li>
                 <Link
                   href="/products/orders"
@@ -172,12 +162,9 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* Divider */}
               <li>
                 <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-6"></div>
               </li>
-
-              {/* Sign Out */}
               <li>
                 <div
                   className="group flex items-center p-4 text-white rounded-2xl hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer border border-transparent hover:border-red-500/30"
@@ -195,7 +182,6 @@ const SideBar = ({ children }) => {
           )}
           {user?.role == "user" && (
             <ul className="space-y-4 font-medium relative z-10">
-              {/* Dashboard/Home */}
               <li>
                 <Link
                   href="/"
@@ -210,7 +196,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* Profile */}
               <li>
                 <Link
                   href={`/users/profile`}
@@ -225,7 +210,6 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* My Orders */}
               <li>
                 <Link
                   href="/products/myOrders"
@@ -240,12 +224,9 @@ const SideBar = ({ children }) => {
                 </Link>
               </li>
 
-              {/* Divider */}
               <li>
                 <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-6"></div>
               </li>
-
-              {/* Sign Out */}
               <li>
                 <div
                   className="group flex items-center p-4 text-white rounded-2xl hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer border border-transparent hover:border-red-500/30"

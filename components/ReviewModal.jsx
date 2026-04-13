@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Rating } from "react-simple-star-rating";
 import { getCookie } from "@/actions/auth";
 import { createReview } from "@/actions/review";
 import { useRouter } from "next/navigation";
@@ -31,7 +30,6 @@ const ReviewModal = ({ setShowReview, productId, refresh, setRefresh }) => {
 
     setValues({ ...values, [name]: e.target.value });
   };
-  // validateForm();
 
   console.log(values);
   useEffect(() => {
@@ -46,38 +44,8 @@ const ReviewModal = ({ setShowReview, productId, refresh, setRefresh }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // -----------------------------------
-    // if (!values.serialNumber || values.serialNumber.length <= 0) {
-    //   setError(true);
-    //   return;
-    // }
-    // if (!values.type || values.type.length <= 0) {
-    //   setError(true);
-    //   return;
-    // }
-    // if (!values.status || values.status.length <= 0) {
-    //   setError(true);
-    //   return;
-    // }
-    // if (!values.location || values.location.length <= 0) {
-    //   setError(true);
-    //   return;
-    // }
-    // if (!values.images || values.images.length <= 0) {
-    //   setError(true);
-    //   return;
-    // }
-    // -----------------------------------
     setAlert({ ...alert, loading: true });
     setValues({ ...values, loading: true, error: false });
-    // console.log(values);
-    // const data = {
-    //   serialNumber,
-    //   type,
-    //   status,
-    //   location,
-    //   //   images,
-    // };
 
     let data = {
       comment,
@@ -113,7 +81,6 @@ const ReviewModal = ({ setShowReview, productId, refresh, setRefresh }) => {
             setAlert({ ...alert, success: false, message: "" });
           }, 1000);
           router.reload();
-          //   router.push(`/`);
         } else {
           setAlert({
             ...alert,
@@ -138,12 +105,9 @@ const ReviewModal = ({ setShowReview, productId, refresh, setRefresh }) => {
 
   return (
     <>
-      {/* <!-- Main modal --> */}
       <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
         <div class="relative p-4 w-full max-w-md max-h-full">
-          {/* <!-- Modal content --> */}
           <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            {/* <!-- Modal header --> */}
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                 Create a Review
@@ -172,7 +136,6 @@ const ReviewModal = ({ setShowReview, productId, refresh, setRefresh }) => {
                 <span class="sr-only">Close modal</span>
               </button>
             </div>
-            {/* <!-- Modal body --> */}
             <form class="p-4 md:p-5">
               <div class="grid gap-4 mb-4 grid-cols-2">
                 <div class="col-span-2 sm:col-span-1">

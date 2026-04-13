@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function About() {
@@ -12,29 +11,29 @@ export default function About() {
     {
       name: "Rajesh Patel",
       role: "CEO & Founder",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      initials: "RP",
+      color: "from-orange-500 to-red-500",
       bio: "15+ years in tech industry",
     },
     {
       name: "Priya Silva",
       role: "CTO",
-      image:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+      initials: "PS",
+      color: "from-purple-500 to-pink-500",
       bio: "Expert in enterprise solutions",
     },
     {
       name: "Kumar Fernando",
       role: "Head of Sales",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      initials: "KF",
+      color: "from-blue-500 to-cyan-500",
       bio: "Customer satisfaction specialist",
     },
     {
       name: "Anjali Perera",
       role: "Marketing Director",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      initials: "AP",
+      color: "from-emerald-500 to-teal-500",
       bio: "Digital marketing innovator",
     },
   ];
@@ -243,14 +242,12 @@ export default function About() {
                   key={index}
                   className="bg-gray-900 rounded-3xl p-6 text-center hover:bg-gray-800 transition-all duration-300 transform hover:scale-105"
                 >
-                  <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-800">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
+                  <div
+                    className={`w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br ${member.color} flex items-center justify-center shadow-lg`}
+                  >
+                    <span className="text-2xl font-bold text-white tracking-wide">
+                      {member.initials}
+                    </span>
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">
                     {member.name}
