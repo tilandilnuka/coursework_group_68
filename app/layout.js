@@ -14,8 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en" data-scroll-behavior="smooth">
       <body>
         <ShopContextProvider>
-          {pathName !== "/" &&
-            pathName !== "/users/login" &&
+          {pathName !== "/users/login" &&
             pathName !== "/users/signup" && <NavBar />}
           {children}
           {pathName !== "/users/login" && pathName !== "/users/signup" && (

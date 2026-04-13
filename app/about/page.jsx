@@ -71,8 +71,8 @@ export default function About() {
             About TechStore
           </h1>
           <p className="text-2xl text-gray-400 max-w-4xl mx-auto leading-relaxed">
-            Sri Lanka&apos;s Premier Technology Destination - Empowering Innovation
-            Since 2015
+            Sri Lanka&apos;s Premier Technology Destination - Empowering
+            Innovation Since 2015
           </p>
         </div>
 
@@ -115,9 +115,9 @@ export default function About() {
                 Founded in 2015 by tech enthusiast Rajesh Patel, TechStore began
                 with a simple mission: to provide Sri Lankans with access to the
                 world&apos;s best mobile phones, tablets, and accessories at
-                competitive prices. What
-                started as a small 500 sq ft shop in Colombo Fort has grown into
-                the nation&apos;s most trusted technology retailer.
+                competitive prices. What started as a small 500 sq ft shop in
+                Colombo Fort has grown into the nation&apos;s most trusted
+                technology retailer.
               </p>
               <p className="text-gray-300 leading-relaxed">
                 Our journey from a single store to a nationwide network of 8
@@ -176,8 +176,8 @@ export default function About() {
                   <h2 className="text-3xl font-thin text-white">Our Vision</h2>
                 </div>
                 <p className="text-gray-200 leading-relaxed text-lg">
-                  To be Sri Lanka&apos;s most trusted technology partner, empowering
-                  individuals and businesses to achieve their digital
+                  To be Sri Lanka&apos;s most trusted technology partner,
+                  empowering individuals and businesses to achieve their digital
                   aspirations through innovative mobile solutions.
                 </p>
               </div>
