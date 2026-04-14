@@ -1,28 +1,18 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 export const ShopContext = createContext(null);
 
-const getDefaultCart = () => {
-  let cart = {};
-  for (let i = 1; i < 10 + 1; i++) {
-    cart[i] = 0;
-  }
-
-  console.log(cart);
-  return cart;
-};
-
 export const ShopContextProvider = (props) => {
-  const [cartItems, setCartItems] = useState({});
-  let socket;
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setCartItems(JSON.parse(localStorage.getItem("cartItems")) || {});
+  const [cartItems, setCartItems] = useState(() => {
+    if (typeof window === "undefined") {
+      return {};
     }
-  }, []);
+
+    return JSON.parse(localStorage.getItem("cartItems")) || {};
+  });
+  let socket;
 
   const updateCartItems = (newCartItems) => {
     console.log(newCartItems, "----------------------- New Cart Items");
@@ -62,6 +52,7 @@ export const ShopContextProvider = (props) => {
       let tempCart = {
         ...cartItems,
         [itemid]: {
+          itemId: itemid,
           itemid,
           itemprice,
           itemtitle,
@@ -137,6 +128,7 @@ export const ShopContextProvider = (props) => {
           ...cartItems,
           [itemId]: {
             itemId,
+            itemid: itemId,
             itemprice,
             itemtitle,
             itemimages,
@@ -158,6 +150,10 @@ export const ShopContextProvider = (props) => {
   };
 
   const getItemCountById = (itemId) => {
+    if (typeof window === "undefined") {
+      return 0;
+    }
+
     const cartItemsString = localStorage.getItem("cartItems");
 
     if (cartItemsString) {

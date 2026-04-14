@@ -1,22 +1,22 @@
 "use client";
 
-import { allProducts, searchProducts } from "@/actions/product";
-import { Suspense, useState, useEffect, useContext } from "react";
+import { Suspense, useState, useMemo, useContext } from "react";
 import { ShopContext } from "@/context/show-context";
 import ModernToast from "@/components/ModernToast";
 import { brands, storefrontCategories } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import {
+  queryProductCatalog,
+  resolveCatalogImage,
+} from "@/data/productCatalog";
 
 const AllProductsContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addToCart } = useContext(ShopContext);
-  const [allData, setAllData] = useState([]);
-  const [limit, setLimit] = useState(12);
+  const limit = 12;
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   const [alert, setAlert] = useState({
     message: "",
@@ -38,6 +38,24 @@ const AllProductsContent = () => {
 
   const { search } = searchValues;
   const { category, brand, price, sort } = filterValues;
+  const {
+    products: allDataResults,
+    totalPages,
+    totalCount,
+  } = useMemo(
+    () =>
+      queryProductCatalog({
+        search,
+        category,
+        brand,
+        price,
+        sort,
+        limit,
+        page,
+      }),
+    [search, category, brand, price, sort, page],
+  );
+  const loading = false;
 
   const resetAlert = () => {
     setAlert({ message: "", error: false, loading: false, success: false });
@@ -45,15 +63,18 @@ const AllProductsContent = () => {
 
   const handleChange = (name) => (e) => {
     e.preventDefault();
+    setPage(1);
     setFilterValues({ ...filterValues, [name]: e.target.value });
   };
 
   const handleSearch = (name) => (e) => {
     e.preventDefault();
+    setPage(1);
     setSearchValues({ ...searchValues, [name]: e.target.value });
   };
 
   const resetFilter = () => {
+    setPage(1);
     setFilterValues({ category: "", brand: "", price: "", sort: "" });
   };
 
@@ -77,91 +98,13 @@ const AllProductsContent = () => {
     });
   };
 
-  async function handleSearchSubmit() {
-    setLoading(true);
-    await searchProducts({ search: search })
-      .then((data) => {
-        if (data.status && data.status == "success") {
-          setAllData(data.data);
-          setAlert({
-            ...alert,
-            loading: false,
-            message: data.message,
-            error: false,
-            success: true,
-          });
-          setTimeout(() => resetAlert(), 1000);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => setLoading(false));
-  }
-
-  async function handleSubmit(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    setLoading(true);
-
-    let params = {
-      limit,
-      page,
-    };
-
-    if (filterValues?.brand) {
-      params.brandname = filterValues.brand;
-    }
-    if (filterValues?.category) {
-      params.category = filterValues.category;
-    }
-    if (filterValues?.price) {
-      params.price = filterValues.price;
-    }
-    if (filterValues?.sort) {
-      params.sort = filterValues.sort;
-    }
-
-    await allProducts(params)
-      .then((data) => {
-        if (data.status && data.status == "success") {
-          setAllData(data.doc);
-          let totalCount = data.totalCount;
-          setTotalPages(Math.ceil(totalCount / limit));
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setAlert({
-          ...alert,
-          loading: false,
-          message: err.message,
-          error: true,
-          success: false,
-        });
-      })
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      if (search.length == 0) {
-        handleSubmit();
-      } else {
-        handleSearchSubmit();
-      }
-    });
-  }, [search]);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      handleSubmit();
-    });
-  }, [page, filterValues]);
-
   const handleAddToCart = (product) => {
-    addToCart(product._id, product.price, product.title, product.images[0]);
+    addToCart(
+      product._id,
+      product.price,
+      product.title,
+      resolveCatalogImage(product.images?.[0]),
+    );
     setAlert({
       message: "Product added to cart!",
       success: true,
@@ -170,6 +113,8 @@ const AllProductsContent = () => {
     });
     setTimeout(() => resetAlert(), 2000);
   };
+
+  const allData = allDataResults;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white pt-32 pb-20 relative overflow-hidden">
@@ -194,8 +139,8 @@ const AllProductsContent = () => {
               </span>
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Explore premium mobile phones, tablets, and accessories chosen
-              for work, play, and daily life
+              Explore premium mobile phones, tablets, and accessories chosen for
+              work, play, and daily life
             </p>
           </div>
 
@@ -415,7 +360,7 @@ const AllProductsContent = () => {
           <>
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-semibold text-white">
-                Found <span className="text-orange-400">{allData.length}</span>{" "}
+                Found <span className="text-orange-400">{totalCount}</span>{" "}
                 products
               </h2>
               <div className="flex gap-2">
@@ -436,15 +381,16 @@ const AllProductsContent = () => {
                   }}
                 >
                   <div className="relative mb-6 overflow-hidden rounded-2xl">
-                    <div className="aspect-square bg-gradient-to-br from-gray-800/50 to-gray-700/50 rounded-2xl overflow-hidden relative group-hover:bg-gradient-to-br group-hover:from-gray-700/50 group-hover:to-gray-600/50 transition-all duration-500">
+                    <div className="aspect-square bg-white rounded-2xl overflow-hidden relative transition-all duration-500">
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_API_DEVELOPMENT}/products/image/${product.images[0]}`}
+                        src={resolveCatalogImage(product.images?.[0])}
                         alt={product.title}
                         width={400}
                         height={400}
-                        className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700 group-hover:rotate-2"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
 
                     <div className="absolute top-3 right-3 flex flex-col gap-2">
@@ -619,7 +565,10 @@ const AllProductsContent = () => {
                   Clear All Filters
                 </button>
                 <button
-                  onClick={() => setSearchValues({ search: "" })}
+                  onClick={() => {
+                    setPage(1);
+                    setSearchValues({ search: "" });
+                  }}
                   className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl transition-all duration-300 font-medium border border-gray-700"
                 >
                   Clear Search
@@ -730,4 +679,3 @@ export default function AllProducts() {
     </Suspense>
   );
 }
-

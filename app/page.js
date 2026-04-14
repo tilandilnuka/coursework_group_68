@@ -1,9 +1,6 @@
 "use client";
 
-import { allProducts, searchProducts } from "@/actions/product";
-import { useState, useEffect } from "react";
-import { getCookie } from "@/actions/auth";
-import ModernToast from "@/components/ModernToast";
+import { useMemo, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import WowHero from "@/components/WowHero";
 import Categories from "@/components/Categories";
@@ -12,8 +9,10 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import LiveChat from "@/components/LiveChat";
 import { brands, popularSearches, storefrontCategories } from "@/constants";
+import { queryProductCatalog } from "@/data/productCatalog";
 
-export default function Home({ searchParams }) {
+export default function Home() {
+  const limit = 12;
   const [filterValues, setFilterValues] = useState({
     category: "",
     brand: "",
@@ -27,30 +26,30 @@ export default function Home({ searchParams }) {
 
   const { search } = searchValues;
   const { category, brand, price, sort } = filterValues;
-  const [allData, setAllData] = useState();
-  const [show, setShow] = useState(false);
-  const [limit, setLimit] = useState(9);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState();
-
-  const [alert, setAlert] = useState({
-    message: "",
-    error: false,
-    loading: false,
-    success: false,
-  });
-
-  const resetAlert = () => {
-    setAlert({ message: "", error: false, loading: false, success: false });
-  };
+  const { products: allData, totalPages } = useMemo(
+    () =>
+      queryProductCatalog({
+        search,
+        category,
+        brand,
+        price,
+        sort,
+        limit,
+        page,
+      }),
+    [search, category, brand, price, sort, page],
+  );
 
   const handleChange = (name) => (e) => {
     e.preventDefault();
+    setPage(1);
     setFilterValues({ ...filterValues, [name]: e.target.value });
   };
 
   const handleSearch = (name) => (e) => {
     e.preventDefault();
+    setPage(1);
     setSearchValues({ ...searchValues, [name]: e.target.value });
   };
 
@@ -74,112 +73,10 @@ export default function Home({ searchParams }) {
     });
   };
 
-  async function handleSearchSubmit() {
-    await searchProducts({ search: search })
-      .then((data) => {
-        console.log(data);
-        if (data.status && data.status == "success") {
-          if (data.results == 0) {
-            setAlert({
-              ...alert,
-              loading: false,
-              message: data.message,
-              error: false,
-              success: true,
-            });
-            window.setTimeout(() => {
-              resetAlert();
-            }, 1000);
-          } else {
-            setAllData(data.data);
-            setShow(false);
-          }
-          setAlert({
-            ...alert,
-            loading: false,
-            message: data.message,
-            error: false,
-            success: true,
-          });
-          window.setTimeout(() => {
-            resetAlert();
-          }, 1000);
-        }
-        console.log(allData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
-  async function handleSubmit(e, options = {}) {
-    const { skipLoading = false } = options;
-    if (e) {
-      e.preventDefault();
-    }
-    let params;
-    if (!skipLoading) {
-      setAlert({ ...alert, loading: true, message: "Loading..." });
-    }
-    params = { limit, page };
-    if (filterValues?.brand) params.brand = filterValues.brand;
-    if (filterValues?.category) params.category = filterValues.category;
-    if (filterValues?.price) params.price = filterValues.price;
-    if (filterValues?.sort) params.sort = filterValues.sort;
-    let token = getCookie("token_user");
-
-    await allProducts(params)
-      .then((data) => {
-        console.log(data);
-        if (data.status && data.status == "success") {
-          if (data.results == 0) {
-            setAllData(data.doc);
-          } else {
-            setAllData(data.doc);
-            console.log(data.totalCount);
-            let totalCount = data.totalCount;
-            setTotalPages(Math.ceil(totalCount / limit));
-            setShow(false);
-          }
-          window.setTimeout(() => {
-            resetAlert();
-          }, 1000);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setAlert({
-          ...alert,
-          loading: false,
-          message: err.message,
-          error: true,
-          success: false,
-        });
-      });
-  }
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      if (search.length == 0) {
-        handleSubmit(undefined, { skipLoading: true });
-      } else {
-        handleSearchSubmit();
-      }
-    });
-  }, [search]);
-
-  useEffect(() => {
-    console.log("page changed...", page);
-    queueMicrotask(() => {
-      handleSubmit();
-    });
-  }, [page, filterValues]);
-
   const resetFilter = () => {
+    setPage(1);
     setFilterValues({ category: "", brand: "", price: "", sort: "" });
   };
-
-  console.log(allData, "is there data...");
 
   return (
     <main
@@ -649,10 +546,6 @@ export default function Home({ searchParams }) {
         }
       `}</style>
 
-      {alert && alert?.message && (
-        <ModernToast alert={alert} setAlert={resetAlert} />
-      )}
-
       <WowHero />
 
       <TrustBadges />
@@ -956,67 +849,69 @@ export default function Home({ searchParams }) {
         </div>
       </div>
 
-      <div className="pagination-wrap" aria-label="Page navigation">
-        <nav
-          className="pagination-nav"
-          role="navigation"
-          aria-label="Pagination"
-        >
-          <button
-            onClick={prevPage}
-            className="pg-page-nav"
-            aria-label="Previous page"
+      {totalPages > 1 && (
+        <div className="pagination-wrap" aria-label="Page navigation">
+          <nav
+            className="pagination-nav"
+            role="navigation"
+            aria-label="Pagination"
           >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-            Prev
-          </button>
-          <span className="pg-page-sep" aria-hidden="true" />
-
-          {[...Array(totalPages)].map((_, index) => (
             <button
-              key={index}
-              onClick={() => setPage(index + 1)}
-              className={`pg-page-btn${page === index + 1 ? " active" : ""}`}
-              aria-label={`Go to page ${index + 1}`}
-              aria-current={page === index + 1 ? "page" : undefined}
+              onClick={prevPage}
+              className="pg-page-nav"
+              aria-label="Previous page"
             >
-              {index + 1}
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Prev
             </button>
-          ))}
+            <span className="pg-page-sep" aria-hidden="true" />
 
-          <span className="pg-page-sep" aria-hidden="true" />
-          <button
-            onClick={nextPage}
-            className="pg-page-nav"
-            aria-label="Next page"
-          >
-            Next
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setPage(index + 1)}
+                className={`pg-page-btn${page === index + 1 ? " active" : ""}`}
+                aria-label={`Go to page ${index + 1}`}
+                aria-current={page === index + 1 ? "page" : undefined}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            <span className="pg-page-sep" aria-hidden="true" />
+            <button
+              onClick={nextPage}
+              className="pg-page-nav"
+              aria-label="Next page"
             >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </button>
-        </nav>
-      </div>
+              Next
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      )}
 
       <Testimonials />
       <FAQ />
