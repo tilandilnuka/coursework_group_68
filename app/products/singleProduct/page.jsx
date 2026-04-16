@@ -4,6 +4,7 @@ import { Suspense, useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShopContext } from "@/context/show-context";
+import { useCompare } from "@/context/compare-context";
 import { useSearchParams } from "next/navigation";
 import ModernToast from "@/components/ModernToast";
 import { calculateAverageRating } from "@/util";
@@ -20,10 +21,20 @@ const SingleProductView = ({ productId }) => {
   });
 
   const { updateCartItemCount, getItemCountById } = useContext(ShopContext);
+  const {
+    compareProducts,
+    isInCompare,
+    addProductToCompare,
+    removeProductFromCompare,
+    maxCompareItems,
+  } = useCompare();
   const product = getProductById(productId);
   const [itemCount, setItemCount] = useState(() =>
     Math.max(1, getItemCountById(productId) || 1),
   );
+  const isCompared = product ? isInCompare(product._id) : false;
+  const compareDisabled =
+    product && !isCompared && compareProducts.length >= maxCompareItems;
 
   const reviews = product?.reviews || [];
   const averageRating = Number(calculateAverageRating(reviews) || 0);
@@ -61,6 +72,21 @@ const SingleProductView = ({ productId }) => {
       loading: false,
     });
     setTimeout(() => resetAlert(), 2000);
+  };
+
+  const handleCompareToggle = () => {
+    if (!product) {
+      return;
+    }
+
+    if (isCompared) {
+      removeProductFromCompare(product._id);
+      return;
+    }
+
+    if (!compareDisabled) {
+      addProductToCompare(product);
+    }
   };
 
   if (!product) {
@@ -652,6 +678,25 @@ const SingleProductView = ({ productId }) => {
                   Add to Cart - Rs.{" "}
                   {(product.price * itemCount).toLocaleString()}
                 </span>
+              </button>
+
+              <button
+                onClick={handleCompareToggle}
+                disabled={compareDisabled}
+                className={`w-full rounded-2xl border py-4 text-base font-semibold transition-all duration-300 ${
+                  isCompared
+                    ? "border-sky-300/60 bg-sky-500/20 text-sky-100"
+                    : "border-gray-600/60 bg-gray-800/60 text-white hover:border-sky-400/50 hover:bg-sky-500/10"
+                } ${compareDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                title={
+                  compareDisabled
+                    ? `You can only compare up to ${maxCompareItems} products`
+                    : isCompared
+                      ? "Remove from compare"
+                      : "Add to compare"
+                }
+              >
+                {isCompared ? "Remove from Comparison" : "Add to Comparison"}
               </button>
             </div>
           </div>

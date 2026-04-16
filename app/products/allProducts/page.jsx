@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useMemo, useContext } from "react";
 import { ShopContext } from "@/context/show-context";
+import { useCompare } from "@/context/compare-context";
 import ModernToast from "@/components/ModernToast";
 import { brands, storefrontCategories } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,6 +16,13 @@ const AllProductsContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addToCart } = useContext(ShopContext);
+  const {
+    compareProducts,
+    isInCompare,
+    addProductToCompare,
+    removeProductFromCompare,
+    maxCompareItems,
+  } = useCompare();
   const limit = 12;
   const [page, setPage] = useState(1);
 
@@ -371,111 +379,174 @@ const AllProductsContent = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
-              {allData.map((product, index) => (
-                <div
-                  key={product._id}
-                  className="group bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-3xl p-6 hover:from-gray-800/90 hover:to-gray-700/90 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 border border-gray-700/30 hover:border-orange-500/50 shadow-xl hover:shadow-2xl hover:shadow-orange-500/25"
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    animation: "fadeInUp 0.6s ease-out forwards",
-                  }}
-                >
-                  <div className="relative mb-6 overflow-hidden rounded-2xl">
-                    <div className="aspect-square bg-white rounded-2xl overflow-hidden relative transition-all duration-500">
-                      <Image
-                        src={resolveCatalogImage(product.images?.[0])}
-                        alt={product.title}
-                        width={400}
-                        height={400}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </div>
+              {allData.map((product, index) => {
+                const productCompared = isInCompare(product._id);
+                const compareDisabled =
+                  !productCompared && compareProducts.length >= maxCompareItems;
 
-                    <div className="absolute top-3 right-3 flex flex-col gap-2">
-                      <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                        ✨ New
-                      </span>
-                      {index % 3 === 0 && (
-                        <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                          🔥 Hot
-                        </span>
-                      )}
-                    </div>
-
-                    <button className="absolute top-3 left-3 w-10 h-10 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-500/20 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                return (
+                  <div
+                    key={product._id}
+                    className="group bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-3xl p-6 hover:from-gray-800/90 hover:to-gray-700/90 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 border border-gray-700/30 hover:border-orange-500/50 shadow-xl hover:shadow-2xl hover:shadow-orange-500/25"
+                    style={{
+                      animationDelay: `${index * 100}ms`,
+                      animation: "fadeInUp 0.6s ease-out forwards",
+                    }}
+                  >
+                    <div className="relative mb-6 overflow-hidden rounded-2xl">
+                      <div className="aspect-square bg-white rounded-2xl overflow-hidden relative transition-all duration-500">
+                        <Image
+                          src={resolveCatalogImage(product.images?.[0])}
+                          alt={product.title}
+                          width={400}
+                          height={400}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
                         />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold text-white mb-3 line-clamp-2 group-hover:text-orange-300 transition-colors duration-300 leading-snug">
-                      {product.title}
-                    </h3>
-
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex text-orange-400">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className="text-lg">
-                            ★
-                          </span>
-                        ))}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                       </div>
-                      <span className="text-gray-400 text-sm font-medium">
-                        (4.8) • 127 reviews
-                      </span>
+
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                          ✨ New
+                        </span>
+                        {index % 3 === 0 && (
+                          <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                            🔥 Hot
+                          </span>
+                        )}
+                      </div>
+
+                      <button className="absolute top-3 left-3 w-10 h-10 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-500/20 transition-all duration-300 opacity-0 group-hover:opacity-100">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                      </button>
                     </div>
 
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex flex-col">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                          Rs. {product.price?.toLocaleString()}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-bold text-white mb-3 line-clamp-2 group-hover:text-orange-300 transition-colors duration-300 leading-snug">
+                        {product.title}
+                      </h3>
+
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex text-orange-400">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className="text-lg">
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-gray-400 text-sm font-medium">
+                          (4.8) • 127 reviews
                         </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500 text-sm line-through">
-                            Rs. {(product.price * 1.2)?.toLocaleString()}
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-col">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                            Rs. {product.price?.toLocaleString()}
                           </span>
-                          <span className="text-green-400 text-sm font-semibold">
-                            Save{" "}
-                            {Math.round(
-                              ((product.price * 0.2) / (product.price * 1.2)) *
-                                100,
-                            )}
-                            %
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500 text-sm line-through">
+                              Rs. {(product.price * 1.2)?.toLocaleString()}
+                            </span>
+                            <span className="text-green-400 text-sm font-semibold">
+                              Save{" "}
+                              {Math.round(
+                                ((product.price * 0.2) /
+                                  (product.price * 1.2)) *
+                                  100,
+                              )}
+                              %
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="w-2 h-2 bg-green-400 rounded-full mb-1"></div>
+                          <span className="text-xs text-gray-400">
+                            In Stock
                           </span>
                         </div>
                       </div>
-
-                      <div className="text-right">
-                        <div className="w-2 h-2 bg-green-400 rounded-full mb-1"></div>
-                        <span className="text-xs text-gray-400">In Stock</span>
-                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() =>
-                        router.push(
-                          `/products/singleProduct?productId=${product._id}`,
-                        )
-                      }
-                      className="flex-1 py-3 px-4 bg-gray-800/50 hover:bg-gray-700/80 text-white rounded-xl transition-all duration-300 font-medium border border-gray-600/50 hover:border-gray-500 backdrop-blur-sm group-hover:transform group-hover:scale-105"
-                    >
-                      <span className="flex items-center justify-center gap-2">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/products/singleProduct?productId=${product._id}`,
+                          )
+                        }
+                        className="flex-1 py-2 px-2 bg-gray-800/50 hover:bg-gray-700/80 text-white rounded-xl transition-all duration-300 text-xs font-medium border border-gray-600/50 hover:border-gray-500 backdrop-blur-sm group-hover:transform group-hover:scale-105"
+                      >
+                        <span className="flex items-center justify-center gap-1">
+                          <svg
+                            className="w-3 h-3 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          View Details
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (productCompared) {
+                            removeProductFromCompare(product._id);
+                            return;
+                          }
+
+                          if (!compareDisabled) {
+                            addProductToCompare(product);
+                          }
+                        }}
+                        disabled={compareDisabled}
+                        className={`flex-1 py-2 px-2 rounded-xl transition-all duration-300 text-xs font-medium border backdrop-blur-sm group-hover:transform group-hover:scale-105 ${
+                          productCompared
+                            ? "bg-sky-500/25 text-sky-100 border-sky-300/50"
+                            : "bg-gray-800/50 text-white border-gray-600/50 hover:bg-gray-700/80"
+                        } ${compareDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                        title={
+                          compareDisabled
+                            ? `You can only compare up to ${maxCompareItems} products`
+                            : productCompared
+                              ? "Remove from compare"
+                              : "Add to compare"
+                        }
+                      >
+                        {productCompared ? "Compared" : "Compare"}
+                      </button>
+
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="px-3 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-orange-500/50 group-hover:transform group-hover:scale-105 font-medium shrink-0"
+                      >
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -486,42 +557,16 @@ const AllProductsContent = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0L17 18M9 19.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
                           />
                         </svg>
-                        View Details
-                      </span>
-                    </button>
+                      </button>
+                    </div>
 
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-orange-500/50 group-hover:transform group-hover:scale-105 font-medium"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0L17 18M9 19.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
-                        />
-                      </svg>
-                    </button>
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                   </div>
-
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         ) : (

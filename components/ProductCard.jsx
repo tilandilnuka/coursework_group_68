@@ -4,6 +4,7 @@ import { useState, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ShopContext } from "@/context/show-context";
+import { useCompare } from "@/context/compare-context";
 import { resolveCatalogImage } from "@/data/productCatalog";
 
 const StarRating = ({ rating = 4.8, max = 5, size = 14 }) => {
@@ -57,6 +58,13 @@ const ProductCard = ({ product }) => {
   const [showSpecs, setShowSpecs] = useState(false);
   const [wishlist, setWishlist] = useState(false);
   const { addToCart } = useContext(ShopContext);
+  const {
+    compareProducts,
+    isInCompare,
+    addProductToCompare,
+    removeProductFromCompare,
+    maxCompareItems,
+  } = useCompare();
 
   const handleImageError = () => setImageError(true);
 
@@ -91,6 +99,22 @@ const ProductCard = ({ product }) => {
   const primaryImage = imageError
     ? null
     : resolveCatalogImage(product?.images?.[0]);
+  const productCompared = isInCompare(product._id);
+  const compareDisabled =
+    !productCompared && compareProducts.length >= maxCompareItems;
+
+  const handleCompareToggle = (e) => {
+    e.stopPropagation();
+
+    if (productCompared) {
+      removeProductFromCompare(product._id);
+      return;
+    }
+
+    if (!compareDisabled) {
+      addProductToCompare(product);
+    }
+  };
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-700/40 bg-gradient-to-b from-gray-800/80 to-gray-900/90 backdrop-blur-lg shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-orange-500/40 hover:shadow-2xl hover:shadow-orange-500/10">
@@ -107,64 +131,97 @@ const ProductCard = ({ product }) => {
         )}
       </div>
 
-      <div className="absolute right-3 top-3 z-20 flex flex-col gap-2 transition-all duration-300">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setWishlist((v) => !v);
-          }}
-          className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 ${
-            wishlist
-              ? "bg-red-500 text-white scale-110"
-              : "bg-black/50 text-gray-300 hover:bg-red-500/80 hover:text-white hover:scale-110"
-          }`}
-          title="Wishlist"
-          aria-label="Toggle wishlist"
-        >
-          <svg
-            className="h-4 w-4"
-            fill={wishlist ? "currentColor" : "none"}
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowSpecs((v) => !v);
-          }}
-          className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 ${
-            showSpecs
-              ? "bg-orange-500 text-white scale-110"
-              : "bg-black/50 text-gray-300 hover:bg-orange-500/80 hover:text-white hover:scale-110"
-          }`}
-          title="Specifications"
-          aria-label="View specifications"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-            />
-          </svg>
-        </button>
-      </div>
-
       <div className="relative mx-4 mt-4 overflow-hidden rounded-xl bg-white">
+        <div className="absolute right-2 top-2 z-20 flex flex-col gap-1.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setWishlist((v) => !v);
+            }}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 ${
+              wishlist
+                ? "bg-red-500 text-white scale-110"
+                : "bg-black/40 text-gray-300 hover:bg-red-500/80 hover:text-white hover:scale-110"
+            }`}
+            title="Wishlist"
+            aria-label="Toggle wishlist"
+          >
+            <svg
+              className="h-3.5 w-3.5"
+              fill={wishlist ? "currentColor" : "none"}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSpecs((v) => !v);
+            }}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 ${
+              showSpecs
+                ? "bg-orange-500 text-white scale-110"
+                : "bg-black/40 text-gray-300 hover:bg-orange-500/80 hover:text-white hover:scale-110"
+            }`}
+            title="Specifications"
+            aria-label="View specifications"
+          >
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={handleCompareToggle}
+            disabled={compareDisabled}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 ${
+              productCompared
+                ? "bg-sky-500 text-white scale-110"
+                : "bg-black/40 text-gray-300 hover:bg-sky-500/80 hover:text-white hover:scale-110"
+            } ${compareDisabled ? "cursor-not-allowed opacity-50" : "hover:scale-110"}`}
+            title={
+              compareDisabled
+                ? `You can only compare up to ${maxCompareItems} products`
+                : productCompared
+                  ? "Remove from comparison"
+                  : "Add to comparison"
+            }
+            aria-label={
+              productCompared ? "Remove from comparison" : "Add to comparison"
+            }
+          >
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </button>
+        </div>
+
         <div className="aspect-square w-full">
           {primaryImage ? (
             <Image
