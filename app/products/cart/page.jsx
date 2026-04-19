@@ -1,12 +1,47 @@
 "use client";
 
 import { ShopContext } from "@/context/show-context";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { resolveCatalogImage } from "@/data/productCatalog";
+import { getCookie } from "@/actions/auth";
+import { getProfile } from "@/actions/user";
+
+const DELIVERY_OPTIONS = [
+  {
+    id: "same-day-colombo",
+    label: "Same-day Colombo",
+    badge: "Fastest",
+    description:
+      "Available in Colombo for selected items when your delivery city is Colombo.",
+    eta: "Arrives today",
+  },
+  {
+    id: "next-day-islandwide",
+    label: "Next-day island-wide",
+    badge: "Most areas",
+    description:
+      "Next-day delivery across many areas island-wide with secure packing and tracking.",
+    eta: "Arrives tomorrow",
+  },
+];
+
+const DELIVERY_DETAILS_STORAGE_KEY = "cartDeliveryDetails";
+
+const EMPTY_DELIVERY_DETAILS = {
+  deliveryOption: DELIVERY_OPTIONS[0].id,
+  fullName: "",
+  email: "",
+  phone: "",
+  streetAddress: "",
+  city: "",
+  region: "",
+  postalCode: "",
+  notes: "",
+};
 
 const Cart = () => {
   let API = process.env.NEXT_PUBLIC_API_DEVELOPMENT;
@@ -25,8 +60,144 @@ const Cart = () => {
   } = useContext(ShopContext);
 
   const router = useRouter();
+  const [deliveryDetails, setDeliveryDetails] = useState(EMPTY_DELIVERY_DETAILS);
+  const [deliveryError, setDeliveryError] = useState("");
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [hasLoadedDeliveryDetails, setHasLoadedDeliveryDetails] =
+    useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const savedDetails = localStorage.getItem(DELIVERY_DETAILS_STORAGE_KEY);
+
+    if (savedDetails) {
+      try {
+        setDeliveryDetails((current) => ({
+          ...current,
+          ...JSON.parse(savedDetails),
+        }));
+      } catch (error) {
+        console.error("Failed to parse saved delivery details:", error);
+      }
+    }
+
+    const userData = localStorage.getItem("user");
+
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+
+        setDeliveryDetails((current) => ({
+          ...current,
+          fullName: current.fullName || parsedUser.username || "",
+          email: current.email || parsedUser.email || "",
+        }));
+
+        const token = getCookie("token_user");
+
+        if (token && parsedUser?._id) {
+          setIsProfileLoading(true);
+          getProfile(parsedUser._id, token)
+            .then((data) => {
+              if (data?.status === "success" && data?.doc) {
+                setDeliveryDetails((current) => ({
+                  ...current,
+                  streetAddress:
+                    current.streetAddress || data.doc.streetAddress || "",
+                  city: current.city || data.doc.city || "",
+                  region: current.region || data.doc.region || "",
+                  postalCode: current.postalCode || data.doc.postalCode || "",
+                }));
+              }
+            })
+            .catch((error) => {
+              console.error("Failed to prefill profile details:", error);
+            })
+            .finally(() => {
+              setIsProfileLoading(false);
+            });
+        }
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+      }
+    }
+
+    setHasLoadedDeliveryDetails(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasLoadedDeliveryDetails) {
+      return;
+    }
+
+    localStorage.setItem(
+      DELIVERY_DETAILS_STORAGE_KEY,
+      JSON.stringify(deliveryDetails),
+    );
+  }, [deliveryDetails, hasLoadedDeliveryDetails]);
+
+  const selectedDeliveryOption =
+    DELIVERY_OPTIONS.find(
+      (option) => option.id === deliveryDetails.deliveryOption,
+    ) || DELIVERY_OPTIONS[0];
+
+  const handleDeliveryFieldChange = (name) => (event) => {
+    setDeliveryError("");
+    setDeliveryDetails((current) => ({
+      ...current,
+      [name]: event.target.value,
+    }));
+  };
+
+  const validateDeliveryDetails = () => {
+    const requiredFields = [
+      ["fullName", "full name"],
+      ["email", "email address"],
+      ["phone", "phone number"],
+      ["streetAddress", "street address"],
+      ["city", "city"],
+    ];
+
+    for (const [field, label] of requiredFields) {
+      if (!deliveryDetails[field]?.trim()) {
+        return `Please enter your ${label} before checkout.`;
+      }
+    }
+
+    const emailPattern =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    if (!emailPattern.test(deliveryDetails.email.trim().toLowerCase())) {
+      return "Please enter a valid email address before checkout.";
+    }
+
+    const numericPhone = deliveryDetails.phone.replace(/\D/g, "");
+
+    if (numericPhone.length < 9) {
+      return "Please enter a valid phone number before checkout.";
+    }
+
+    if (
+      deliveryDetails.deliveryOption === "same-day-colombo" &&
+      !deliveryDetails.city.toLowerCase().includes("colombo")
+    ) {
+      return "Same-day delivery is currently available only for Colombo addresses. Please update the city or choose next-day delivery.";
+    }
+
+    return "";
+  };
 
   const makePayment = async () => {
+    const validationMessage = validateDeliveryDetails();
+
+    if (validationMessage) {
+      setDeliveryError(validationMessage);
+      return;
+    }
+
     try {
       const stripe = await loadStripe(
         process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
@@ -47,6 +218,11 @@ const Cart = () => {
         products: Object.values(cartItems),
         subTotal: getTotalCartAmount(),
         userId: tempUserId,
+        deliveryDetails: {
+          ...deliveryDetails,
+          deliveryLabel: selectedDeliveryOption.label,
+          deliveryEta: selectedDeliveryOption.eta,
+        },
       };
 
       const response = await fetch(`${API}/products/create-checkout-session`, {
@@ -364,6 +540,223 @@ const Cart = () => {
                       );
                     })}
                   </div>
+
+                  <div className="mt-8 rounded-3xl border border-gray-700/50 bg-gray-800/40 p-6">
+                    <div className="mb-5 flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          Delivery details
+                        </h3>
+                        <p className="mt-1 text-sm leading-relaxed text-gray-400">
+                          We offer same-day delivery in Colombo for selected
+                          items and next-day delivery across many areas
+                          island-wide. Orders are securely packed and tracked
+                          from dispatch to the doorstep.
+                        </p>
+                      </div>
+                      {isProfileLoading && (
+                        <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-300">
+                          Loading saved profile
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mb-5 grid gap-3">
+                      {DELIVERY_OPTIONS.map((option) => {
+                        const isSelected =
+                          option.id === deliveryDetails.deliveryOption;
+
+                        return (
+                          <label
+                            key={option.id}
+                            className={`cursor-pointer rounded-2xl border p-4 transition-all duration-300 ${
+                              isSelected
+                                ? "border-orange-500/60 bg-gradient-to-r from-orange-500/15 to-red-500/10 shadow-lg shadow-orange-500/10"
+                                : "border-gray-700/60 bg-gray-900/40 hover:border-gray-500/70"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="deliveryOption"
+                              value={option.id}
+                              checked={isSelected}
+                              onChange={handleDeliveryFieldChange(
+                                "deliveryOption",
+                              )}
+                              className="sr-only"
+                            />
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-white">
+                                    {option.label}
+                                  </span>
+                                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-300">
+                                    {option.badge}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                  {option.description}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-green-400">
+                                  {option.eta}
+                                </p>
+                                <p className="mt-1 text-xs text-gray-500">
+                                  Free shipping
+                                </p>
+                              </div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor="fullName"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Full name
+                        </label>
+                        <input
+                          id="fullName"
+                          type="text"
+                          value={deliveryDetails.fullName}
+                          onChange={handleDeliveryFieldChange("fullName")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="Enter the recipient's full name"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="deliveryEmail"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Email address
+                        </label>
+                        <input
+                          id="deliveryEmail"
+                          type="email"
+                          value={deliveryDetails.email}
+                          onChange={handleDeliveryFieldChange("email")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="you@example.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="deliveryPhone"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Phone number
+                        </label>
+                        <input
+                          id="deliveryPhone"
+                          type="tel"
+                          value={deliveryDetails.phone}
+                          onChange={handleDeliveryFieldChange("phone")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="+94 77 123 4567"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor="streetAddress"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Street address
+                        </label>
+                        <input
+                          id="streetAddress"
+                          type="text"
+                          value={deliveryDetails.streetAddress}
+                          onChange={handleDeliveryFieldChange("streetAddress")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="House number, street, and area"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="deliveryCity"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          City
+                        </label>
+                        <input
+                          id="deliveryCity"
+                          type="text"
+                          value={deliveryDetails.city}
+                          onChange={handleDeliveryFieldChange("city")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="Colombo"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="deliveryRegion"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Province / district
+                        </label>
+                        <input
+                          id="deliveryRegion"
+                          type="text"
+                          value={deliveryDetails.region}
+                          onChange={handleDeliveryFieldChange("region")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="Western Province"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor="deliveryPostalCode"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Postal code
+                        </label>
+                        <input
+                          id="deliveryPostalCode"
+                          type="text"
+                          value={deliveryDetails.postalCode}
+                          onChange={handleDeliveryFieldChange("postalCode")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="Optional but helpful"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label
+                          htmlFor="deliveryNotes"
+                          className="mb-2 block text-sm font-medium text-gray-300"
+                        >
+                          Delivery notes
+                        </label>
+                        <textarea
+                          id="deliveryNotes"
+                          rows="3"
+                          value={deliveryDetails.notes}
+                          onChange={handleDeliveryFieldChange("notes")}
+                          className="w-full rounded-2xl border border-gray-700 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder-gray-500 transition-all focus:border-orange-500 focus:outline-none"
+                          placeholder="Apartment number, landmark, or preferred contact note"
+                        />
+                      </div>
+                    </div>
+
+                    {deliveryError && (
+                      <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                        {deliveryError}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>
@@ -408,6 +801,12 @@ const Cart = () => {
                   <div className="flex justify-between items-center px-5 py-4 border-b border-gray-700/50">
                     <span className="text-gray-300 text-sm">Insurance</span>
                     <span className="text-green-400 font-bold">Included</span>
+                  </div>
+                  <div className="flex justify-between items-center px-5 py-4 border-b border-gray-700/50">
+                    <span className="text-gray-300 text-sm">Delivery</span>
+                    <span className="text-white font-semibold">
+                      {selectedDeliveryOption.label}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center px-5 py-4 bg-gradient-to-r from-orange-500/10 to-red-500/10">
                     <span className="text-white font-bold text-lg">Total</span>

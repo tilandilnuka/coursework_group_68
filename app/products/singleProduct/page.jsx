@@ -13,6 +13,7 @@ import { getProductById, resolveCatalogImage } from "@/data/productCatalog";
 const SingleProductView = ({ productId }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedTradeInId, setSelectedTradeInId] = useState("none");
   const [alert, setAlert] = useState({
     message: "",
     error: false,
@@ -38,6 +39,48 @@ const SingleProductView = ({ productId }) => {
 
   const reviews = product?.reviews || [];
   const averageRating = Number(calculateAverageRating(reviews) || 0);
+  const tradeInOptions = product
+    ? [
+        {
+          id: "none",
+          label: "No trade-in",
+          credit: 0,
+          badge: "Standard",
+          description: "Buy this device outright at the current listed price.",
+        },
+        {
+          id: "premium",
+          label: "Flagship phone or tablet",
+          credit: Math.round(product.price * 0.3),
+          badge: "Best value",
+          description:
+            "For recent premium trade-ins in strong cosmetic condition.",
+        },
+        {
+          id: "good",
+          label: "Everyday device in good condition",
+          credit: Math.round(product.price * 0.2),
+          badge: "Popular",
+          description:
+            "A balanced estimate for devices with normal wear and solid battery health.",
+        },
+        {
+          id: "recycle",
+          label: "Older or damaged device",
+          credit: Math.round(product.price * 0.1),
+          badge: "Recycle credit",
+          description:
+            "A smaller credit for eligible devices with faults, cracks, or age-related wear.",
+        },
+      ]
+    : [];
+  const selectedTradeIn =
+    tradeInOptions.find((option) => option.id === selectedTradeInId) ||
+    tradeInOptions[0];
+  const estimatedTradeInPrice = Math.max(
+    0,
+    product ? product.price - (selectedTradeIn?.credit || 0) : 0,
+  );
   const ratingBreakdown = [5, 4, 3, 2, 1].map((rating) => {
     const ratingCount = reviews.filter(
       (review) => Number(review.ratings) === rating,
@@ -425,6 +468,101 @@ const SingleProductView = ({ productId }) => {
                 </div>
               </div>
             )}
+
+            <div className="bg-gradient-to-br from-sky-500/10 via-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-2xl p-6 border border-sky-400/20 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 9V7a5 5 0 00-10 0v2m-2 0h14l-1 10a2 2 0 01-2 2H8a2 2 0 01-2-2L5 9zm4 4h.01M15 13h.01"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Trade-In Options
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Eligible phones and tablets can be traded in and the credit
+                    can be applied toward this purchase.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {tradeInOptions.map((option) => {
+                  const isSelected = option.id === selectedTradeInId;
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setSelectedTradeInId(option.id)}
+                      className={`w-full rounded-2xl border p-4 text-left transition-all duration-300 ${
+                        isSelected
+                          ? "border-sky-400/60 bg-sky-500/10 shadow-lg shadow-sky-500/10"
+                          : "border-gray-700/60 bg-gray-800/50 hover:border-sky-400/40 hover:bg-sky-500/5"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-white">
+                              {option.label}
+                            </span>
+                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300">
+                              {option.badge}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                            {option.description}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">
+                            Estimated credit
+                          </p>
+                          <p className="text-lg font-bold text-sky-300">
+                            {option.credit > 0
+                              ? `Rs. ${option.credit.toLocaleString()}`
+                              : "Rs. 0"}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5 grid gap-4 rounded-2xl border border-sky-400/20 bg-black/20 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+                <div>
+                  <p className="text-sm text-gray-400">
+                    Estimated price after trade-in
+                  </p>
+                  <p className="mt-1 text-3xl font-bold bg-gradient-to-r from-sky-200 to-cyan-400 bg-clip-text text-transparent">
+                    Rs. {estimatedTradeInPrice.toLocaleString()}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-300">
+                    Final value depends on the device model, age, battery
+                    health, and physical condition after in-store or courier
+                    inspection.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-sky-400/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+                  {selectedTradeInId === "none"
+                    ? "Bring a device later if you want a valuation before checkout."
+                    : "We can inspect the trade-in and confirm the final credit before dispatch."}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-10 animate-fade-in-up animation-delay-300">
@@ -667,6 +805,12 @@ const SingleProductView = ({ productId }) => {
                       Rs. {(product.price * itemCount).toLocaleString()}
                     </span>
                   </p>
+                  {selectedTradeIn?.credit > 0 && (
+                    <p className="mt-2 text-sm text-sky-300">
+                      Estimated after trade-in: Rs.{" "}
+                      {(estimatedTradeInPrice * itemCount).toLocaleString()}
+                    </p>
+                  )}
                 </div>
               </div>
 
