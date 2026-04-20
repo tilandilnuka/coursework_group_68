@@ -7,6 +7,13 @@ import Link from "next/link";
 import { authenticate } from "@/actions/auth";
 import Modal from "@/components/Modal";
 
+const PARTICLE_STYLES = Array.from({ length: 20 }, (_, index) => ({
+  left: `${(index * 17 + 11) % 100}%`,
+  top: `${(index * 29 + 7) % 100}%`,
+  animationDelay: `${(index % 6) * 0.45}s`,
+  animationDuration: `${2 + (index % 5) * 0.55}s`,
+}));
+
 const Login = () => {
   const router = useRouter();
   const [values, setValues] = useState({
@@ -126,16 +133,11 @@ const Login = () => {
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-orange-600/10 to-red-600/10 rounded-full blur-2xl animate-pulse delay-500"></div>
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
+          {PARTICLE_STYLES.map((style, i) => (
             <div
               key={i}
               className="absolute w-1 h-1 bg-orange-500/30 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-              }}
+              style={style}
             ></div>
           ))}
         </div>
@@ -276,7 +278,7 @@ const Login = () => {
 
                 <div className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
                   <p className="text-gray-300 mb-3">
-                    Don't have an account yet?
+                    Don&apos;t have an account yet?
                   </p>
                   <Link
                     href="/users/signup"

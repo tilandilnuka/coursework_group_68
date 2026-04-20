@@ -30,19 +30,27 @@ const PhoneLogo = ({ className = "w-6 h-6" }) => (
 const NavBar = ({ transparentAtTop = false }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user] = useState(() => {
-    try {
-      if (typeof window === "undefined") {
-        return null;
-      }
-
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
   const { cartItems } = useContext(ShopContext);
+
+  useEffect(() => {
+    const syncUser = () => {
+      try {
+        const storedUser = window.localStorage.getItem("user");
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    const timer = window.setTimeout(syncUser, 0);
+    window.addEventListener("storage", syncUser);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("storage", syncUser);
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

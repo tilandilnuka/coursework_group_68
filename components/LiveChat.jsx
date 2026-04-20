@@ -22,11 +22,18 @@ const QUICK_REPLIES = [
   "wireless earbuds",
 ];
 
-const formatTime = () =>
-  new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const TIME_FORMATTER = new Intl.DateTimeFormat("en-LK", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const formatTime = () => TIME_FORMATTER.format(new Date());
+
+const getInitialMessages = () => [
+  {
+    ...INITIAL_MESSAGE,
+  },
+];
 
 const createInitialMessages = () => [
   {
@@ -36,10 +43,6 @@ const createInitialMessages = () => [
 ];
 
 const loadStoredMessages = () => {
-  if (typeof window === "undefined") {
-    return createInitialMessages();
-  }
-
   const savedHistory = window.localStorage.getItem("chatHistory");
 
   if (!savedHistory) {
@@ -58,7 +61,14 @@ const loadStoredMessages = () => {
   return createInitialMessages();
 };
 
-const formatPrice = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
+const formatPrice = (value) =>
+  `Rs. ${Number(value || 0).toLocaleString("en-LK")}`;
+
+const getNextMessageSeed = (messages) =>
+  messages.reduce((maxId, message) => {
+    const id = typeof message?.id === "number" ? message.id : maxId;
+    return Math.max(maxId, id);
+  }, 1) + 1;
 
 const scoreProduct = (product, terms = []) => {
   const searchableText = [
@@ -338,20 +348,13 @@ const ProductSuggestionCard = ({ product }) => (
 
 const LiveChat = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState(loadStoredMessages);
+  const [messages, setMessages] = useState(getInitialMessages);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const chatBoxRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const messageIdRef = useRef(null);
-
-  if (messageIdRef.current === null) {
-    messageIdRef.current =
-      messages.reduce((maxId, msg) => {
-        const id = typeof msg?.id === "number" ? msg.id : maxId;
-        return Math.max(maxId, id);
-      }, 1) + 1;
-  }
+  const messageIdRef = useRef(getNextMessageSeed(getInitialMessages()));
+  const hasHydratedRef = useRef(false);
 
   const getNextMessageId = () => {
     const nextId = messageIdRef.current;
@@ -360,8 +363,24 @@ const LiveChat = () => {
   };
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const storedMessages = loadStoredMessages();
+      hasHydratedRef.current = true;
+      messageIdRef.current = getNextMessageSeed(storedMessages);
+      setMessages(storedMessages);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydratedRef.current) {
+      return;
+    }
+
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);

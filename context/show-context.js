@@ -1,26 +1,37 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const ShopContext = createContext(null);
 
-export const ShopContextProvider = (props) => {
-  const [cartItems, setCartItems] = useState(() => {
-    if (typeof window === "undefined") {
-      return {};
-    }
+const readStoredCartItems = () => {
+  try {
+    const storedCartItems = localStorage.getItem("cartItems");
+    return storedCartItems ? JSON.parse(storedCartItems) || {} : {};
+  } catch (error) {
+    console.error("Error parsing stored cart items:", error);
+    return {};
+  }
+};
 
-    return JSON.parse(localStorage.getItem("cartItems")) || {};
-  });
+export const ShopContextProvider = (props) => {
+  const [cartItems, setCartItems] = useState({});
   let socket;
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setCartItems(readStoredCartItems());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const updateCartItems = (newCartItems) => {
-    console.log(newCartItems, "----------------------- New Cart Items");
+    if (typeof window === "undefined") {
+      return;
+    }
+
     localStorage.setItem("cartItems", JSON.stringify(newCartItems));
-    console.log(
-      JSON.parse(localStorage.getItem("cartItems")),
-      "----------------------- New Cart Items",
-    );
   };
 
   const getTotalCartAmount = () => {
@@ -86,6 +97,7 @@ export const ShopContextProvider = (props) => {
           const updatedCart = { ...cartItems };
           delete updatedCart[itemid];
           setCartItems(updatedCart);
+          updateCartItems(updatedCart);
         }
       }
     }
@@ -154,18 +166,10 @@ export const ShopContextProvider = (props) => {
       return 0;
     }
 
-    const cartItemsString = localStorage.getItem("cartItems");
+    const storedCartItems = readStoredCartItems();
 
-    if (cartItemsString) {
-      try {
-        const cartItems = JSON.parse(cartItemsString);
-
-        if (cartItems && cartItems[itemId]) {
-          return cartItems[itemId].count;
-        }
-      } catch (error) {
-        console.error("Error parsing cartItems JSON:", error);
-      }
+    if (storedCartItems && storedCartItems[itemId]) {
+      return storedCartItems[itemId].count;
     }
 
     return 0;
@@ -173,7 +177,9 @@ export const ShopContextProvider = (props) => {
 
   const checkout = () => {
     setCartItems({});
-    localStorage.removeItem("cartItems");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cartItems");
+    }
   };
 
   const contextValue = {

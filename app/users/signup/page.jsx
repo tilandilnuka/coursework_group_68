@@ -16,6 +16,22 @@ import {
 } from "react-icons/fa";
 import { useEffect } from "react";
 
+const PARTICLE_STYLES = Array.from({ length: 15 }, (_, index) => ({
+  left: `${(index * 19 + 13) % 100}%`,
+  top: `${(index * 31 + 5) % 100}%`,
+  animationDelay: `${(index % 5) * 0.5}s`,
+  animationDuration: `${2 + (index % 4) * 0.7}s`,
+}));
+
+const calculatePasswordStrength = (pass) => {
+  let strength = 0;
+  if (pass.length >= 8) strength += 25;
+  if (/[a-z]/.test(pass)) strength += 25;
+  if (/[A-Z]/.test(pass)) strength += 25;
+  if (/[0-9]/.test(pass) && /[^A-Za-z0-9]/.test(pass)) strength += 25;
+  return strength;
+};
+
 const SignUp = () => {
   const router = useRouter();
   const [values, setValues] = useState({
@@ -31,7 +47,6 @@ const SignUp = () => {
   const [tempError, setTempError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
   const [focusedField, setFocusedField] = useState(null);
   const [isAnimated, setIsAnimated] = useState(false);
 
@@ -55,18 +70,7 @@ const SignUp = () => {
     loading,
     message,
   } = values;
-
-  useEffect(() => {
-    const calculateStrength = (pass) => {
-      let strength = 0;
-      if (pass.length >= 8) strength += 25;
-      if (/[a-z]/.test(pass)) strength += 25;
-      if (/[A-Z]/.test(pass)) strength += 25;
-      if (/[0-9]/.test(pass) && /[^A-Za-z0-9]/.test(pass)) strength += 25;
-      return strength;
-    };
-    setPasswordStrength(calculateStrength(password));
-  }, [password]);
+  const passwordStrength = calculatePasswordStrength(password);
 
   useEffect(() => {
     setTimeout(() => setIsAnimated(true), 100);
@@ -179,16 +183,11 @@ const SignUp = () => {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-br from-orange-600/5 to-red-600/5 rounded-full blur-2xl animate-pulse delay-500"></div>
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(15)].map((_, i) => (
+          {PARTICLE_STYLES.map((style, i) => (
             <div
               key={i}
               className="absolute w-1 h-1 bg-orange-500/20 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-              }}
+              style={style}
             ></div>
           ))}
         </div>
